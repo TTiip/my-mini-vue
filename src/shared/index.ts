@@ -1,1 +1,5 @@
-export const extend = Object.assign;
+const extend = Object.assign
+
+export {
+  extend
+}

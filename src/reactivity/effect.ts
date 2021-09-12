@@ -1,6 +1,9 @@
+import { extend } from "../shared"
 class ReactiveEffect {
   private _fn: any
   deps = []
+  active = true
+  onStop?: () => void
   public scheduler: Function | undefined
   constructor (fn, scheduler?) {
     this._fn = fn
@@ -11,8 +14,21 @@ class ReactiveEffect {
     return this._fn()
   }
   stop() {
-    this.deps.forEach((dep: any) => dep.delete(this))
+    cleanupEffect(this)
+    if (this.active) {
+      cleanupEffect(this)
+      if (this.onStop) {
+        this.onStop()
+      }
+      this.active = false
+    }
   }
+}
+
+function cleanupEffect(effect) {
+  effect.deps.forEach((dep: any) => {
+    dep.delete(effect)
+  })
 }
 
 
@@ -57,6 +73,8 @@ let activeEffect
 
 export function effect (fn, options: any = {}) {
   const _effect: any = new ReactiveEffect(fn, options.scheduler)
+  // 将options所有的属性继承（赋值）给实例对象_effect
+  extend(_effect, options)
   _effect.run()
 
   const runner = _effect.run.bind(_effect)

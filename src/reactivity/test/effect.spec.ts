@@ -79,7 +79,7 @@ it("stop", () => {
   expect(dummy).toBe(3)
 })
 
-it.skip("onStop", () => {
+it("onStop", () => {
   const obj = reactive({
     foo: 1,
   })
@@ -90,7 +90,7 @@ it.skip("onStop", () => {
       dummy = obj.foo
     },
     {
-      onStop,
+      onStop
     }
   )
 
