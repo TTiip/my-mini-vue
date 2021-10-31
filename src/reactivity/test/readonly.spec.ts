@@ -8,3 +8,4 @@ describe('readonly', () => {
 		expect(wrapped.foo).toBe(1)
 	})
 })
+
