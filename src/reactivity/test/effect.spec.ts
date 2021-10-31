@@ -2,7 +2,7 @@ import { reactive } from '../reactive'
 import { effect, stop } from '../effect'
 
 describe('effect', () => {
-  it('happy path', () => {
+  test('happy path', () => {
     const user = reactive({
       age: 10
     })
@@ -18,7 +18,7 @@ describe('effect', () => {
   })
 })
 
-it('show return runner when effect', () => {
+test('show return runner when effect', () => {
   // 1.effect(fn) -> function (runner) -> fn -> return
   let foo = 10
   const runner = effect(() => {
@@ -32,7 +32,7 @@ it('show return runner when effect', () => {
   expect(r).toBe('foo')
 })
 
-it("scheduler", () => {
+test("scheduler", () => {
   // 1. 通过 effect 的第二个参数给董的一个 scheduler 的 fn
   // 2. effect 第一次执行的时候还会执行 fn
   // 3. 当响应式对象 set时 upddate 不会执行 fn 二而是执行 scheduler
@@ -62,7 +62,7 @@ it("scheduler", () => {
   expect(dummy).toBe(2)
 })
 
-it("stop", () => {
+test("stop", () => {
   let dummy
   const obj = reactive({ prop: 1 })
   const runner = effect(() => {
@@ -79,7 +79,7 @@ it("stop", () => {
   expect(dummy).toBe(3)
 })
 
-it("onStop", () => {
+test("onStop", () => {
   const obj = reactive({
     foo: 1,
   })
