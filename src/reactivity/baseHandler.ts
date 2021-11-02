@@ -1,9 +1,9 @@
 import { track, trigger } from './effect'
 import { ReactiveFlags } from './enum'
 import { reactive, readonly } from './reactive'
-import { isObject } from '../shared'
+import { isObject, extend } from '../shared'
 
-const CreteGetter = (isReadonly = false) => {
+const CreteGetter = (isReadonly = false, shallow = false) => {
   const get = (target, key) => {
     if (key === ReactiveFlags.IS_REACTIVE) {
       // 通过 isReactive 处理以后的对象或者值 会存在 ReactiveFlags.IS_REACTIVE
@@ -16,6 +16,11 @@ const CreteGetter = (isReadonly = false) => {
     }
 
     const res = Reflect.get(target, key)
+
+    if (shallow) {
+      return res
+    }
+
     // 判断是不是对象 是的话 再次转化成reactive对象
     // 如果是 readonly 的话 则调用readonly转化
     if (isObject(res)) {
@@ -45,6 +50,7 @@ const CreteSetter = () => {
 const get = CreteGetter()
 const set = CreteSetter()
 const readonlyGet = CreteGetter(true)
+const shallowReadonlyGet = CreteGetter(true, true)
 
 const mutableHandlers = {
   get,
@@ -59,7 +65,12 @@ const readOnlyHandlers = {
   }
 }
 
+const shallowReadonlyHandlers = extend({}, readOnlyHandlers, {
+  get: shallowReadonlyGet,
+})
+
 export {
 	mutableHandlers,
-	readOnlyHandlers
+	readOnlyHandlers,
+  shallowReadonlyHandlers
 }

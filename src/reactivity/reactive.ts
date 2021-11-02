@@ -1,20 +1,44 @@
-import { mutableHandlers, readOnlyHandlers } from './baseHandler'
+import { mutableHandlers, readOnlyHandlers, shallowReadonlyHandlers } from './baseHandler'
 import { ReactiveFlags } from './enum'
+import { isObject } from '../shared'
 
-export function reactive (raw) {
-  return new Proxy(raw, mutableHandlers)
+const createReactiveObject = (target, baseHandles) => {
+  if (!isObject(target)) {
+    console.warn(`target ${target} 必须是一个对象`);
+    return target
+  }
+
+  return new Proxy(target, baseHandles);
 }
 
-export function readonly (raw) {
-  return new Proxy(raw, readOnlyHandlers)
+const reactive = (raw) => {
+  return createReactiveObject(raw, mutableHandlers)
 }
 
-export function isReactive (raw) {
+const readonly = (raw) => {
+  return createReactiveObject(raw, readOnlyHandlers)
+}
+
+const isReactive = (raw) => {
   // 这里只需要返回的是false或者是true undefined直接转换成 boolean
   return !!raw[ReactiveFlags.IS_REACTIVE]
 }
 
-export function isReadonly (raw) {
+const isReadonly = (raw) => {
   // 这里只需要返回的是false或者是true undefined直接转换成 boolean
   return !!raw[ReactiveFlags.IS_READONLY]
+}
+
+// 外层是 readonly 内层不是
+const shallowReadonly = (raw) => {
+  return createReactiveObject(raw, shallowReadonlyHandlers)
+}
+
+export {
+  createReactiveObject,
+  reactive,
+  readonly,
+  isReactive,
+  isReadonly,
+  shallowReadonly
 }
