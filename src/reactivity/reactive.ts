@@ -21,17 +21,29 @@ const CreteSetter = () => {
   return set
 }
 
+// 初始化 优化性能,避免每次都调用
+
+const get = CreteGetter()
+const set = CreteSetter()
+const readonlyGet = CreteGetter(true)
+
+const mutableHandlers = {
+  get,
+  set
+}
+
+const readOnlyHandlers = {
+  get: readonlyGet,
+  set (target, key, value) {
+    console.warn(`key: ${key} set 失败 因为 target 是 readonly!`, target)
+    return true
+  }
+}
 
 export function reactive (raw) {
-  return new Proxy(raw, {
-    get: CreteGetter(),
-    set: CreteSetter()
-  })
+  return new Proxy(raw, mutableHandlers)
 }
 
 export function readonly (raw) {
-  return new Proxy(raw, {
-    get: CreteGetter(true),
-    set: CreteSetter()
-  })
+  return new Proxy(raw, readOnlyHandlers)
 }

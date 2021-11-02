@@ -7,4 +7,15 @@ describe('readonly', () => {
 		expect(wrapped).not.toBe(original)
 		expect(wrapped.foo).toBe(1)
 	})
+
+	test('warn then call set', () => {
+		// console.wran 是全局方法，如果用自己写的 需要引入一下 判断是不是调用了
+		console.warn = jest.fn()
+		const user = readonly({
+			age: 10
+		})
+		user.age = 11
+
+		expect(console.warn).toBeCalled()
+	})
 })
