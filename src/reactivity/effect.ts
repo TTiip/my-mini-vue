@@ -44,15 +44,35 @@ class ReactiveEffect {
   }
 }
 
-function cleanupEffect(effect) {
+const cleanupEffect = (effect) => {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect)
   })
   effect.deps.length = 0
 }
 
+const trackEffects = (dep) => {
+  // 已经在 dep 中了 不用在添加
+  if (dep.has(activeEffect)) {
+    return
+  }
+  dep.add(activeEffect)
+  // 当 activeEffect shouldTrack 存在时在执行push
+  activeEffect.deps.push(dep)
+}
+
+const triggerEffects = (dep) => {
+  for (const effect of dep) {
+    if (effect.scheduler) {
+      effect.scheduler()
+    } else {
+      effect.run()
+    }
+  }
+}
+
 const targetMap = new Map()
-export function track (target, key) {
+const track = (target, key) => {
   // 变量都是false的时候不需要收集依赖
   if (!isTracking()) {
     return
@@ -71,30 +91,17 @@ export function track (target, key) {
     dep = new Set()
     depsMap.set(key, dep)
   }
-  // 已经在 dep 中了 不用在添加
-  if (dep.has(activeEffect)) {
-    return
-  }
-  dep.add(activeEffect)
-  // 当 activeEffect shouldTrack 存在时在执行push
-  activeEffect.deps.push(dep)
+  trackEffects(dep)
 }
 
-export function trigger (target, key) {
+const trigger = (target, key) => {
   // 取出对应的dep循环调用
   let depsMap = targetMap.get(target)
   let dep = depsMap.get(key)
-
-  for (const effect of dep) {
-    if (effect.scheduler) {
-      effect.scheduler()
-    } else {
-      effect.run()
-    }
-  }
+  triggerEffects(dep)
 }
 
-export function effect (fn, options: any = {}) {
+const effect = (fn, options: any = {}) => {
   const _effect: any = new ReactiveEffect(fn, options.scheduler)
   // 将options所有的属性继承（赋值）给实例对象_effect
   extend(_effect, options)
@@ -106,6 +113,17 @@ export function effect (fn, options: any = {}) {
   return runner
 }
 
-export function stop (runner) {
+const stop = (runner) => {
   runner.effect.stop()
+}
+
+export {
+  isTracking,
+  effect,
+  track,
+  trigger,
+  trackEffects,
+  triggerEffects,
+  cleanupEffect,
+  stop
 }
