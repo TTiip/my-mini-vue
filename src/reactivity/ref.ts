@@ -9,7 +9,7 @@ class RefImpl {
 	constructor(value) {
 		// 拿到最开始的值 因为如果传递进来的是一个对象可能在reactive以后就直接变成响应式对象了
 		this._rawValue = value
-		// value --> object 需要转换成一个reactive
+		// value --> object 需要转换成一个reactive 对象
 		this._value = convert(value)
 		this.dep = new Set()
 	}
