@@ -1,4 +1,13 @@
 import { extend } from "../shared"
+
+// 创建全局变量存储fn
+let activeEffect
+let shouldTrack
+
+const isTracking = () => {
+  return shouldTrack && activeEffect !== undefined
+}
+
 class ReactiveEffect {
   private _fn: any
   deps = []
@@ -10,8 +19,18 @@ class ReactiveEffect {
     this.scheduler = scheduler
   }
   run() {
+    // 1.收集依赖
+    // shouldTrack 区分状态
+    if (!this.active) {
+      return this._fn()
+    }
+    shouldTrack = true
     activeEffect = this
-    return this._fn()
+
+    const result = this._fn()
+    // reset
+    shouldTrack = false
+    return result
   }
   stop() {
     cleanupEffect(this)
@@ -29,11 +48,16 @@ function cleanupEffect(effect) {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect)
   })
+  effect.deps.length = 0
 }
-
 
 const targetMap = new Map()
 export function track (target, key) {
+  // 变量都是false的时候不需要收集依赖
+  if (!isTracking()) {
+    return
+  }
+
   // target -> key -> dep
   // 通过 先取 target 再取 key 找到对应的 dep 然后操作。
   let depsMap = targetMap.get(target)
@@ -47,11 +71,13 @@ export function track (target, key) {
     dep = new Set()
     depsMap.set(key, dep)
   }
+  // 已经在 dep 中了 不用在添加
+  if (dep.has(activeEffect)) {
+    return
+  }
   dep.add(activeEffect)
-  // 当 activeEffect 存在时在执行push
-  if (!activeEffect) return
+  // 当 activeEffect shouldTrack 存在时在执行push
   activeEffect.deps.push(dep)
-  // const dep = new Set()
 }
 
 export function trigger (target, key) {
@@ -67,9 +93,6 @@ export function trigger (target, key) {
     }
   }
 }
-
-// 创建全局变量存储fn
-let activeEffect
 
 export function effect (fn, options: any = {}) {
   const _effect: any = new ReactiveEffect(fn, options.scheduler)
