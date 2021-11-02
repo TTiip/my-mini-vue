@@ -34,11 +34,17 @@ const shallowReadonly = (raw) => {
   return createReactiveObject(raw, shallowReadonlyHandlers)
 }
 
+// 判断是不是 reactive 或者 readonly 是的话 肯定是proxy对象
+const isProxy = (raw) => {
+  return isReactive(raw) || isReadonly(raw)
+}
+
 export {
   createReactiveObject,
   reactive,
   readonly,
   isReactive,
   isReadonly,
-  shallowReadonly
+  shallowReadonly,
+  isProxy
 }
