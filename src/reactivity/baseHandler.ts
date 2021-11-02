@@ -1,21 +1,27 @@
 import { track, trigger } from './effect'
 import { ReactiveFlags } from './enum'
+import { reactive, readonly } from './reactive'
+import { isObject } from '../shared'
 
 const CreteGetter = (isReadonly = false) => {
   const get = (target, key) => {
-    // 通过 isReactive 处理以后的对象或者值 会存在 ReactiveFlags.IS_REACTIVE
-    // 存在 isReactive 即为 true
     if (key === ReactiveFlags.IS_REACTIVE) {
+      // 通过 isReactive 处理以后的对象或者值 会存在 ReactiveFlags.IS_REACTIVE
+      // 存在 isReactive 即为 true
       return true
-    }
-
-    // 通过 isReadonly 处理以后的对象或者值 会存在 ReactiveFlags.IS_READONLY
-    // 存在 isReadonly 即为 true
-    if (key === ReactiveFlags.IS_READONLY) {
+    }  else if (key === ReactiveFlags.IS_READONLY) {
+      // 通过 isReadonly 处理以后的对象或者值 会存在 ReactiveFlags.IS_READONLY
+      // 存在 isReadonly 即为 true
       return true
     }
 
     const res = Reflect.get(target, key)
+    // 判断是不是对象 是的话 再次转化成reactive对象
+    // 如果是 readonly 的话 则调用readonly转化
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res)
+    }
+
     if (!isReadonly) {
       track(target, key)
     }
