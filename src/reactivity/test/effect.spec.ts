@@ -33,9 +33,9 @@ test('show return runner when effect', () => {
 })
 
 test("scheduler", () => {
-  // 1. 通过 effect 的第二个参数给董的一个 scheduler 的 fn
+  // 1. 通过 effect 的第二个参数给定的一个 scheduler 的 fn
   // 2. effect 第一次执行的时候还会执行 fn
-  // 3. 当响应式对象 set时 upddate 不会执行 fn 二而是执行 scheduler
+  // 3. 当响应式对象 set时 update 不会执行 fn 而是执行 scheduler
   // 4. 如果执行 runner 的时候 会再次执行fn
   let dummy
   let run: any

@@ -125,5 +125,6 @@ export {
   trackEffects,
   triggerEffects,
   cleanupEffect,
-  stop
+  stop,
+  ReactiveEffect
 }
