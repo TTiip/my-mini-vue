@@ -1,6 +1,6 @@
 
 import { effect } from '../effect'
-import { ref, isRef, unRef } from '../ref'
+import { ref, isRef, unRef, proxyRefs } from '../ref'
 import { reactive } from '../reactive'
 
 describe('ref', () => {
@@ -53,10 +53,37 @@ describe('ref', () => {
 
   test('unRef', () => {
     const a = ref(1)
-    const user = reactive({
-      age: 18
-    })
+    const b = 2
     expect(unRef(a)).toBe(1)
-    expect(unRef(1)).toBe(1)
+    expect(unRef(b)).toBe(2)
   })
+
+  // 一般 用在 template 解析中
+  test('proxyRefs', () => {
+    const user = {
+      age: ref(18),
+      name: 'aphelios'
+    }
+    // get -> age (ref) 给他返回 age.value
+    // get -> age (not ref) 给他返回 age
+
+    const proxyUser = proxyRefs(user)
+    expect(user.age.value).toBe(18)
+    expect(user.name).toBe('aphelios')
+    expect(proxyUser.age).toBe(18)
+    expect(proxyUser.name).toBe('aphelios')
+
+    // set -> age (ref) 修改他的 age.value
+    // set -> age (not ref) 修改他的 age 直接使用 值 替换
+
+    proxyUser.age = 20
+    expect(user.age.value).toBe(20)
+    expect(proxyUser.age).toBe(20)
+
+
+    proxyUser.age = 10
+    expect(user.age.value).toBe(10)
+    expect(proxyUser.age).toBe(10)
+  })
+
 })

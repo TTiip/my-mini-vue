@@ -48,6 +48,7 @@ const isRef = (ref) => {
 	return !!ref.__v_isRef
 }
 
+// 返回 xx.value 或者 直接返回value
 const unRef = (ref) => {
 	if (isRef(ref)) {
 		return ref.value
@@ -55,8 +56,28 @@ const unRef = (ref) => {
 	return ref
 }
 
+const proxyRefs = (objectWithRefs) => {
+	return new Proxy(objectWithRefs, {
+		get (target, key) {
+			// get -> age (ref) 给他返回 age.value
+			// get -> age (not ref) 给他返回 age
+			return unRef(Reflect.get(target, key))
+		},
+		// set -> age (ref) 修改他的 age.value
+		// set -> age (not ref) 修改他的 age 直接使用 值 替换
+		set (target, key, value) {
+			if (isRef(target[key]) && !isRef(value)) {
+				return target[key].value = value
+			} else if (isRef(value)) {
+				return Reflect.set(target, key, value)
+			}
+		}
+	})
+}
+
 export {
 	ref,
 	isRef,
-	unRef
+	unRef,
+	proxyRefs
 }
