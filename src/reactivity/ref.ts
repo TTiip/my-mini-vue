@@ -6,6 +6,7 @@ class RefImpl {
 	public dep
 	private  _value: any
 	private  _rawValue: any
+	private  __v_isRef = true
 	constructor(value) {
 		// 拿到最开始的值 因为如果传递进来的是一个对象可能在reactive以后就直接变成响应式对象了
 		this._rawValue = value
@@ -43,6 +44,19 @@ const trackRefValue = (refInstance) => {
 	}
 }
 
+const isRef = (ref) => {
+	return !!ref.__v_isRef
+}
+
+const unRef = (ref) => {
+	if (isRef(ref)) {
+		return ref.value
+	}
+	return ref
+}
+
 export {
-	ref
+	ref,
+	isRef,
+	unRef
 }
