@@ -11,11 +11,42 @@ const patch = (vnode, container) => {
 	// 判断 是不是 element
 	// 如果是 element 那么应该处理 element
 	// 如果是 component 就处理 component
-	processComponent(vnode, container)
+	if (typeof vnode.type === 'string') {
+		processElement(vnode, container)
+	} else if (typeof vnode.type === 'object') {
+		processComponent(vnode, container)
+	}
+}
+
+const processElement = (vnode, container) => {
+	mountElemnt(vnode, container)
 }
 
 const processComponent = (vnode, container) => {
 	mountComponent(vnode, container)
+}
+
+const mountElemnt = (vnode, container) => {
+	const { type, children, props } = vnode
+	const el = document.createElement(type)
+	// 内容 string 或者 array
+	if (typeof children === 'string') {
+		el.textContent = children
+	} else if (Array.isArray(children)) {
+		mountChildren(vnode, el)
+	}
+	// 处理 props
+	for (const key in props) {
+		const val = props[key]
+		el.setAttribute(key, val)
+	}
+	container.append(el)
+}
+
+const mountChildren = (vnode, container) => {
+	vnode.children.map(item => {
+		patch(item, container)
+	})
 }
 
 const mountComponent = (vnode, container) => {
@@ -35,6 +66,7 @@ const setupRenderEffect = (instance, container) => {
 export {
 	render,
 	patch,
+	processElement,
 	processComponent,
 	mountComponent
 }
