@@ -10,8 +10,8 @@ const App = {
 		return h(
 			'div',
 			{
-				id: 'root',
-				class: ['red', 'hard']
+				id: ['root', 'root1'],
+				class: ['red1', 'hard1']
 			},
 			// string 类型的内容
 			// `hi, mini-vue`
