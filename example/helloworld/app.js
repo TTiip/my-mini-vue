@@ -1,3 +1,6 @@
+import { h } from '../../lib/mini-vue.esm.js'
+
+
 const App = {
 	// .vue3
 	// <template></template>

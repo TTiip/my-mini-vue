@@ -40,9 +40,10 @@ const handleSetupResult = (instance, setupResult) => {
 const finishComponentSetup = (instance) => {
 	// 先判断 组件上有没有render
 	const Component = instance.type
-	if (Component.render) {
-		instance.render = Component.render
-	}
+	instance.render = Component.render
+	// if (Component.render) {
+	// 	instance.render = Component.render
+	// }
 }
 
 export {

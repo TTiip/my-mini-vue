@@ -9,6 +9,8 @@ const patch = (vnode, container) => {
 	// 去处理组件
 
 	// 判断 是不是 element
+	// 如果是 element 那么应该处理 element
+	// 如果是 component 就处理 component
 	processComponent(vnode, container)
 }
 
