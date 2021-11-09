@@ -10,7 +10,7 @@ const createComponentInstance = (vnode) => {
 const setupComponent = (instance) => {
 	// Todo
 	// initProps
-	// initSlot
+	// initSlots
 
 	setupStatefulComponent(instance)
 }
@@ -28,7 +28,7 @@ const setupStatefulComponent = (instance) => {
 }
 
 const handleSetupResult = (instance, setupResult) => {
-	// Tdo function
+	// Todo function
 	if (typeof setupResult === 'object') {
 		// 如果是对象则直接赋值
 		instance.setupState = setupResult
@@ -40,8 +40,7 @@ const handleSetupResult = (instance, setupResult) => {
 const finishComponentSetup = (instance) => {
 	// 先判断 组件上有没有render
 	const Component = instance.type
-	if (!Component.render) {
-		// Component.render = instance.render
+	if (Component.render) {
 		instance.render = Component.render
 	}
 }

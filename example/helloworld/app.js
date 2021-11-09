@@ -3,6 +3,7 @@ const App = {
 	// <template></template>
 	// render
 	render() {
+		// ui 逻辑
 		return h('div', `hi, ${this.msg}!`)
 	},
 	setup () {

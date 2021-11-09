@@ -4,7 +4,8 @@ import { render } from './render'
 const createApp = (rootComponent) => {
 	return {
 		mount: (rootContainer) => {
-			// 先VNode
+			// 先 转换成 VNode
+			// component --> vNode
 			// 所有逻辑操作 都会基于 VNode 做操作
 			const vnode = createNode(rootComponent)
 			// 渲染

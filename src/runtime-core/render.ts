@@ -13,10 +13,10 @@ const patch = (vnode, container) => {
 }
 
 const processComponent = (vnode, container) => {
-	mountedComponent(vnode, container)
+	mountComponent(vnode, container)
 }
 
-const mountedComponent = (vnode, container) => {
+const mountComponent = (vnode, container) => {
 	const instance = createComponentInstance(vnode)
 	setupComponent(instance)
 	setupRenderEffect(instance, container)
@@ -24,10 +24,9 @@ const mountedComponent = (vnode, container) => {
 
 const setupRenderEffect = (instance, container) => {
 	// 虚拟节点树
-	const subTree = instance.render
+	const subTree = instance.render()
 
-// vnnode -> patch
-// vnode -> element -> mountElement
+// vnode -> patch
 	patch(subTree, container)
 }
 
@@ -35,5 +34,5 @@ export {
 	render,
 	patch,
 	processComponent,
-	mountedComponent
+	mountComponent
 }
