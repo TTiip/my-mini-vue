@@ -28,7 +28,8 @@ const processComponent = (vnode, container) => {
 
 const mountElemnt = (vnode, container) => {
 	const { type, children, props } = vnode
-	const el = document.createElement(type)
+	// 此处的 虚拟节点 是数据 element 类型
+	const el = (vnode.el = document.createElement(type))
 	// 内容 string 或者 array
 	if (typeof children === 'string') {
 		el.textContent = children
@@ -58,19 +59,22 @@ const mountChildren = (vnode, container) => {
 const mountComponent = (vnode, container) => {
 	const instance = createComponentInstance(vnode)
 	setupComponent(instance)
-	setupRenderEffect(instance, container)
+	setupRenderEffect(instance, vnode, container)
 }
 
-const setupRenderEffect = (instance, container) => {
+const setupRenderEffect = (instance, vnode, container) => {
 	const { proxy } = instance
-	console.log(instance, 'instance')
 
 	// 虚拟节点树
-	// 通过call方法 改变this指向味proxy，在使用代理获取对应的值
+	// 通过call方法 改变this指向为proxy，在使用代理获取对应的值
 	const subTree = instance.render.call(proxy)
 
 // vnode -> patch
 	patch(subTree, container)
+
+	// element --> mount
+	// 在 element 子节点 全部处理完成以后
+	vnode.el = subTree.el
 }
 
 export {

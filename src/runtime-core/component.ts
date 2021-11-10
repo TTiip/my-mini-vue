@@ -1,3 +1,5 @@
+import { PublicInstanceProxyhandle } from'./componentPublicInstance'
+
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
@@ -22,16 +24,8 @@ const setupStatefulComponent = (instance) => {
 	// 封装暴露 ctx
 	// 方便 后续调用获取值，通过代理去 返回值
 	instance.proxy = new Proxy(
-		{},
-		{
-			get(target, key) {
-				// setupState 里面去获取值
-				const { setupState } = instance
-				if (key in setupState) {
-					return setupState[key]
-				}
-			}
-		}
+		{_: instance},
+		PublicInstanceProxyhandle
 	)
 
 	const { setup } = Component

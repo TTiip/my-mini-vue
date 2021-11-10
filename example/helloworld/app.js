@@ -1,11 +1,14 @@
 import { h } from '../../lib/mini-vue.esm.js'
 
+// 先试用全局变量去获取实例 做调试
+window.self = null
 
 const App = {
 	// .vue3
 	// <template></template>
 	// render
 	render() {
+		window.self = this
 		// ui 逻辑
 		return h(
 			'div',
@@ -14,6 +17,7 @@ const App = {
 				class: ['red1', 'hard1']
 			},
 			// setupState 里面的值
+			// this.$el --> 返回组件实例
 			`hi, ${this.msg}`
 			// string 类型的内容
 			// `hi, mini-vue`
