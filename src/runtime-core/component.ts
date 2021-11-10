@@ -1,7 +1,8 @@
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
-		type: vnode.type
+		type: vnode.type,
+		setupState: {}
 	}
 
 	return component
@@ -17,6 +18,21 @@ const setupComponent = (instance) => {
 
 const setupStatefulComponent = (instance) => {
 	const Component = instance.type
+
+	// 封装暴露 ctx
+	// 方便 后续调用获取值，通过代理去 返回值
+	instance.proxy = new Proxy(
+		{},
+		{
+			get(target, key) {
+				// setupState 里面去获取值
+				const { setupState } = instance
+				if (key in setupState) {
+					return setupState[key]
+				}
+			}
+		}
+	)
 
 	const { setup } = Component
 	// 如果用户写了 setup

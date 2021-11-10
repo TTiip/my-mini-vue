@@ -62,8 +62,12 @@ const mountComponent = (vnode, container) => {
 }
 
 const setupRenderEffect = (instance, container) => {
+	const { proxy } = instance
+	console.log(instance, 'instance')
+
 	// 虚拟节点树
-	const subTree = instance.render()
+	// 通过call方法 改变this指向味proxy，在使用代理获取对应的值
+	const subTree = instance.render.call(proxy)
 
 // vnode -> patch
 	patch(subTree, container)
