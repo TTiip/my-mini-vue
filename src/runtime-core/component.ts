@@ -1,10 +1,13 @@
 import { PublicInstanceProxyhandle } from'./componentPublicInstance'
+import { initProps } from './componentProps'
+import { shallowReadonly } from '../reactivity/reactive'
 
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
 		type: vnode.type,
-		setupState: {}
+		setupState: {},
+		props: {}
 	}
 
 	return component
@@ -12,7 +15,7 @@ const createComponentInstance = (vnode) => {
 
 const setupComponent = (instance) => {
 	// Todo
-	// initProps
+	initProps(instance, instance.vnode.props)
 	// initSlots
 
 	setupStatefulComponent(instance)
@@ -28,11 +31,12 @@ const setupStatefulComponent = (instance) => {
 		PublicInstanceProxyhandle
 	)
 
+	// 此处是 调用用户写的 setup 函数
 	const { setup } = Component
 	// 如果用户写了 setup
 	if (setup) {
 		// function 或者 object
-		const setupResult = setup()
+		const setupResult = setup(shallowReadonly(instance.props))
 		handleSetupResult(instance, setupResult)
 	}
 }

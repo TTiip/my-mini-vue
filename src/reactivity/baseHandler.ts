@@ -66,7 +66,7 @@ const readOnlyHandlers = {
 }
 
 const shallowReadonlyHandlers = extend({}, readOnlyHandlers, {
-  get: shallowReadonlyGet,
+  get: shallowReadonlyGet
 })
 
 export {

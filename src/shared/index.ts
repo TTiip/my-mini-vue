@@ -8,9 +8,12 @@ const haschange = (newValue, oldValue) => {
   return !Object.is(newValue, oldValue)
 }
 
+const hasOwn = (val, key) => Object.prototype.hasOwnProperty.call(val, key)
+
 
 export {
   extend,
   isObject,
-  haschange
+  haschange,
+  hasOwn
 }

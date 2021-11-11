@@ -4,11 +4,11 @@ import { isObject } from '../shared'
 
 const createReactiveObject = (target, baseHandles) => {
   if (!isObject(target)) {
-    console.warn(`target ${target} 必须是一个对象`);
+    console.warn(`target ${target} 必须是一个对象`)
     return target
   }
 
-  return new Proxy(target, baseHandles);
+  return new Proxy(target, baseHandles)
 }
 
 const reactive = (raw) => {

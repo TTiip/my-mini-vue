@@ -40,7 +40,6 @@ const mountElemnt = (vnode, container) => {
 	}
 	// 处理 props
 	for (const key in props) {
-		console.log(key, 'key')
 		const val = props[key]
 		// 事件 onClick --> 具体 --> 通用
 		// on + event name
