@@ -14,7 +14,13 @@ const App = {
 			'div',
 			{
 				id: ['root', 'root1'],
-				class: ['red1', 'hard1']
+				class: ['red1', 'hard1'],
+				onClick: () => {
+					console.log('click')
+				},
+				onMousedown: () => {
+					console.log('onMousedown')
+				}
 			},
 			// setupState 里面的值
 			// this.$el --> 返回组件实例
