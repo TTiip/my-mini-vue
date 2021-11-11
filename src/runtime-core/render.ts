@@ -1,4 +1,5 @@
 import { createComponentInstance, setupComponent } from './component'
+import { ShapeFlags } from '../shared/ShapeFlags'
 
 const render = (vnode, container) => {
 	//  patch -> 方便数据的处理
@@ -11,9 +12,10 @@ const patch = (vnode, container) => {
 	// 判断 是不是 element
 	// 如果是 element 那么应该处理 element
 	// 如果是 component 就处理 component
-	if (typeof vnode.type === 'string') {
+	const { shapeFlag } = vnode
+	if (shapeFlag & ShapeFlags.ELEMENT) {
 		processElement(vnode, container)
-	} else if (typeof vnode.type === 'object') {
+	} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
 		processComponent(vnode, container)
 	}
 }
@@ -27,13 +29,13 @@ const processComponent = (vnode, container) => {
 }
 
 const mountElemnt = (vnode, container) => {
-	const { type, children, props } = vnode
+	const { type, children, props, shapeFlag } = vnode
 	// 此处的 虚拟节点 是数据 element 类型
 	const el = (vnode.el = document.createElement(type))
 	// 内容 string 或者 array
-	if (typeof children === 'string') {
+	if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
 		el.textContent = children
-	} else if (Array.isArray(children)) {
+	} else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
 		mountChildren(vnode, el)
 	}
 	// 处理 props
