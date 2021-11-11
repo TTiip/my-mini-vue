@@ -26,3 +26,4 @@ const createApp = (rootComponent) => {
 export {
 	createApp
 }
+
