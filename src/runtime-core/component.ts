@@ -1,14 +1,18 @@
 import { PublicInstanceProxyhandle } from'./componentPublicInstance'
 import { initProps } from './componentProps'
 import { shallowReadonly } from '../reactivity/reactive'
+import { emit } from '../runtime-core/componentEmit'
 
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
 		type: vnode.type,
 		setupState: {},
-		props: {}
+		props: {},
+		emit: (...arg) => {}
 	}
+
+	component.emit = emit.bind(null, component)
 
 	return component
 }
@@ -36,7 +40,9 @@ const setupStatefulComponent = (instance) => {
 	// 如果用户写了 setup
 	if (setup) {
 		// function 或者 object
-		const setupResult = setup(shallowReadonly(instance.props))
+		const setupResult = setup(shallowReadonly(instance.props), {
+			emit: instance.emit
+		})
 		handleSetupResult(instance, setupResult)
 	}
 }
