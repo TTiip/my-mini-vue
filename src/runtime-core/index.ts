@@ -1,6 +1,6 @@
-export * from './createApp'
 export * from './h'
 export * from './vnode'
 export * from './component'
 export * from './apiInject'
+export * from './render'
 export * from './helpers/renderSlots'
