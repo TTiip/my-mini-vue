@@ -6,13 +6,16 @@ import { emit } from '../runtime-core/componentEmit'
 
 let currentInstance = null
 
-const createComponentInstance = (vnode) => {
+const createComponentInstance = (vnode, parent) => {
 	const component = {
 		vnode,
 		type: vnode.type,
 		setupState: {},
 		props: {},
 		slots: {},
+		// provides: parent ? JSON.parse(JSON.stringify(parent.provides)) : {},
+		provides: parent ? parent.provides : {},
+		parent,
 		emit: (...arg) => {}
 	}
 
