@@ -1,4 +1,5 @@
 export * from './createApp'
 export * from './h'
 export * from './vnode'
+export * from './component'
 export * from './helpers/renderSlots'

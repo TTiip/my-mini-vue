@@ -4,6 +4,8 @@ import { initSlots } from './componentSlots'
 import { shallowReadonly } from '../reactivity/reactive'
 import { emit } from '../runtime-core/componentEmit'
 
+let currentInstance = null
+
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
@@ -41,10 +43,15 @@ const setupStatefulComponent = (instance) => {
 	const { setup } = Component
 	// 如果用户写了 setup
 	if (setup) {
+		// 利用全局变量 存储 当前组件的实例
+		// 封装函数 方便调用追溯 即 中间层 思想
+		setCurrentInstance(instance)
 		// function 或者 object
 		const setupResult = setup(shallowReadonly(instance.props), {
 			emit: instance.emit
 		})
+		// 当组件setup执行完成以后 清空 currentInstance 保证 getCurrentInstance 只能在setup里面使用
+		currentInstance = null
 		handleSetupResult(instance, setupResult)
 	}
 }
@@ -68,10 +75,19 @@ const finishComponentSetup = (instance) => {
 	// }
 }
 
+const setCurrentInstance = (instance) => {
+	currentInstance = instance
+}
+
+const getCurrentInstance = () => {
+	return currentInstance
+}
+
 export {
 	createComponentInstance,
 	setupComponent,
 	setupStatefulComponent,
 	handleSetupResult,
-	finishComponentSetup
+	finishComponentSetup,
+	getCurrentInstance
 }
