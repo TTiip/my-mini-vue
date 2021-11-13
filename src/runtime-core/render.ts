@@ -1,5 +1,6 @@
 import { createComponentInstance, setupComponent } from './component'
 import { ShapeFlags } from '../shared/ShapeFlags'
+import { Fragment, Text } from './vnode'
 
 const render = (vnode, container) => {
 	//  patch -> 方便数据的处理
@@ -12,11 +13,24 @@ const patch = (vnode, container) => {
 	// 判断 是不是 element
 	// 如果是 element 那么应该处理 element
 	// 如果是 component 就处理 component
-	const { shapeFlag } = vnode
-	if (shapeFlag & ShapeFlags.ELEMENT) {
-		processElement(vnode, container)
-	} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-		processComponent(vnode, container)
+
+	// 此处添加一个特殊类型 仅用做 包裹元素 不生成 特别元素 即 Fragment 只渲染 全部的children
+	const { type, shapeFlag } = vnode
+
+	switch(type) {
+		case Fragment:
+			processFragment(vnode, container)
+			break
+		case Text:
+			processText(vnode, container)
+			break
+		default:
+			if (shapeFlag & ShapeFlags.ELEMENT) {
+				processElement(vnode, container)
+			} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+				processComponent(vnode, container)
+			}
+			break
 	}
 }
 
@@ -26,6 +40,15 @@ const processElement = (vnode, container) => {
 
 const processComponent = (vnode, container) => {
 	mountComponent(vnode, container)
+}
+
+const processFragment = (vnode, container) => {
+	mountChildren(vnode, container)
+}
+const processText = (vnode, container) => {
+	const { children } = vnode
+	const textNode = (vnode.el = document.createTextNode(children))
+	container.append(textNode)
 }
 
 const mountElemnt = (vnode, container) => {
