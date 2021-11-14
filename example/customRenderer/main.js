@@ -7,7 +7,7 @@ const app = new PIXI.Application({
   antialias: true,
   resolution: 1,
   backgroundColor: 0x1d9ce0
-})/*  */
+})
 
 document.body.append(app.view)
 
