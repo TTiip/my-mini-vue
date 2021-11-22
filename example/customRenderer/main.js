@@ -34,3 +34,4 @@ const renderInstance = creareRenderInstance({
 })
 
 renderInstance.createApp(App).mount(app.stage)
+
