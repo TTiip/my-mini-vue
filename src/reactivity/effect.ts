@@ -1,130 +1,138 @@
-import { extend } from "../shared"
+import { extend } from '../shared'
 
-// 创建全局变量存储fn
 let activeEffect
 let shouldTrack
+class ReactiveEffect {
+	private _fn: any
+	public _scheduler: any
+	onStop?: () => void
+	active = true // stop 状态
+	deps = []
 
+	constructor(fn, scheduler?){
+		this._fn = fn
+		this._scheduler = scheduler
+	}
+
+	run() {
+		// 会收集依赖
+		// shouldTrack 来做区分
+		if (!this.active) {
+			return this._fn()
+		}
+
+		shouldTrack = true
+		activeEffect = this
+		const res = this._fn()
+		// 全局变量 reset
+		shouldTrack = false
+
+		return res
+	}
+
+	stop () {
+		if (this.active) {
+			cleanUpEffect(this)
+			this.active = false
+			if (this.onStop) {
+				this.onStop()
+			}
+		}
+	}
+}
 const isTracking = () => {
+	// 判断是不是 应该 收集依赖 & 有没有全局的 effect
   return shouldTrack && activeEffect !== undefined
 }
 
-class ReactiveEffect {
-  private _fn: any
-  deps = []
-  active = true
-  onStop?: () => void
-  public scheduler: Function | undefined
-  constructor (fn, scheduler?) {
-    this._fn = fn
-    this.scheduler = scheduler
-  }
-  run() {
-    // 1.收集依赖
-    // shouldTrack 区分状态
-    if (!this.active) {
-      return this._fn()
-    }
-    shouldTrack = true
-    activeEffect = this
-
-    const result = this._fn()
-    // reset
-    shouldTrack = false
-    return result
-  }
-  stop() {
-    cleanupEffect(this)
-    if (this.active) {
-      cleanupEffect(this)
-      if (this.onStop) {
-        this.onStop()
-      }
-      this.active = false
-    }
-  }
-}
-
-const cleanupEffect = (effect) => {
-  effect.deps.forEach((dep: any) => {
-    dep.delete(effect)
-  })
-  effect.deps.length = 0
-}
-
-const trackEffects = (dep) => {
-  // 已经在 dep 中了 不用在添加
-  if (dep.has(activeEffect)) {
-    return
-  }
-  dep.add(activeEffect)
-  // 当 activeEffect shouldTrack 存在时在执行push
-  activeEffect.deps.push(dep)
-}
-
-const triggerEffects = (dep) => {
-  for (const effect of dep) {
-    if (effect.scheduler) {
-      effect.scheduler()
-    } else {
-      effect.run()
-    }
-  }
-}
-
-const targetMap = new Map()
-const track = (target, key) => {
-  // 变量都是false的时候不需要收集依赖
-  if (!isTracking()) {
-    return
-  }
-
-  // target -> key -> dep
-  // 通过 先取 target 再取 key 找到对应的 dep 然后操作。
-  let depsMap = targetMap.get(target)
-  if (!depsMap) {
-    depsMap = new Map()
-    targetMap.set(target, depsMap)
-  }
-
-  let dep = depsMap.get(key)
-  if (!dep) {
-    dep = new Set()
-    depsMap.set(key, dep)
-  }
-  trackEffects(dep)
-}
-
-const trigger = (target, key) => {
-  // 取出对应的dep循环调用
-  let depsMap = targetMap.get(target)
-  let dep = depsMap.get(key)
-  triggerEffects(dep)
+const cleanUpEffect = (effect) => {
+	effect.deps.map((dep: any) => {
+		dep.delete(effect)
+	})
+	effect.deps.length = 0
 }
 
 const effect = (fn, options: any = {}) => {
-  const _effect: any = new ReactiveEffect(fn, options.scheduler)
-  // 将options所有的属性继承（赋值）给实例对象_effect
-  extend(_effect, options)
-  _effect.run()
+	const { scheduler } = options
+	// 初始化的时候就需要调用一次fn
+	const _effect = new ReactiveEffect(fn, scheduler)
 
-  const runner = _effect.run.bind(_effect)
-  runner.effect = _effect
+	// 将调用 options 中的参数 和 类上同名参数赋值
+	// onStop --> onStop
+	extend(_effect, options)
 
-  return runner
+	_effect.run()
+
+	// 将传进来的 fn 返回出去
+	// bind 以当前的 effect 实例作为函数的 this 指针
+	const runner: any = _effect.run.bind(_effect)
+	runner.effect = _effect
+
+	return runner
 }
 
+const targetMap = new Map()
+
+const trackEffects = (dep) => {
+	// 如果没有 effect 实例直接不做后面的操作
+	// if (!activeEffect) return
+	// if (!shouldTrack) return
+
+	dep.add(activeEffect)
+	activeEffect.deps.push(dep)
+}
+
+const track = (target, key) => {
+	if (!isTracking()) return
+	// target --> key --> dep
+	let depsMap = targetMap.get(target)
+	// 不存在despMap 先初始化一下
+	if (!depsMap) {
+		depsMap = new Map()
+		targetMap.set(target, depsMap)
+	}
+
+	// 不存在dep 先初始化一下
+	let dep = depsMap.get(key)
+	if (!dep) {
+		dep = new Set()
+		depsMap.set(key, dep)
+	}
+	trackEffects(dep)
+}
+
+const triggerEffects = (dep) => {
+	// 循环调用 dep 的 run 方法 触发每一个 dep 的 _fn
+	for (const effect of dep) {
+		if (effect._scheduler) {
+			effect._scheduler()
+		} else {
+			effect.run()
+		}
+	}
+}
+
+const trigger = (target, key) => {
+	// 取出 target 对应的 depsMap
+	let depsMap = targetMap.get(target)
+
+	// 取出 key 对应的 dep
+	let dep = depsMap.get(key)
+	triggerEffects(dep)
+}
 const stop = (runner) => {
-  runner.effect.stop()
+	runner.effect.stop()
 }
+
+
 
 export {
-  isTracking,
-  effect,
-  track,
-  trigger,
-  trackEffects,
-  triggerEffects,
-  cleanupEffect,
-  stop,
-  ReactiveEffect
+	ReactiveEffect,
+	effect,
+	isTracking,
+	track,
+	trackEffects,
+	trigger,
+	triggerEffects,
+	stop
 }

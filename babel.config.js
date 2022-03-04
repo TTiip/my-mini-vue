@@ -1,13 +1,8 @@
 module.exports = {
   presets: [
-    [
-      '@babel/preset-env',
-      {
-        targets: {
-          node: 'current'
-        }
-      }
-    ],
-    '@babel/preset-typescript'
-  ],
+		// 使用当前node版本为基础进行转换
+		["@babel/preset-env", { targets: { node: "current" } }],
+		// 支持typescript
+		'@babel/preset-typescript',
+	]
 }

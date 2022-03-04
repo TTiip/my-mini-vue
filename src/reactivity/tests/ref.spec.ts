@@ -1,15 +1,13 @@
-
 import { effect } from '../effect'
-import { ref, isRef, unRef, proxyRefs } from '../ref'
 import { reactive } from '../reactive'
-
+import { ref, isRef, unRef, proxyRefs } from '../ref'
 describe('ref', () => {
-  test('happy path', () => {
+  it('happy path', () => {
     const a = ref(1)
     expect(a.value).toBe(1)
   })
 
-  test('should be reactive', () => {
+  it('should be reactive', () => {
     const a = ref(1)
     let dummy
     let calls = 0
@@ -28,9 +26,9 @@ describe('ref', () => {
     expect(dummy).toBe(2)
   })
 
-  test('should make nested properties reactive', () => {
+  it('should make nested properties reactive', () => {
     const a = ref({
-      count: 1,
+      count: 1
     })
     let dummy
     effect(() => {
@@ -41,49 +39,40 @@ describe('ref', () => {
     expect(dummy).toBe(2)
   })
 
-  test('isRef', () => {
+	it('isRef', () => {
     const a = ref(1)
     const user = reactive({
-      age: 18
+      age: 1
     })
     expect(isRef(a)).toBe(true)
     expect(isRef(1)).toBe(false)
     expect(isRef(user)).toBe(false)
   })
 
-  test('unRef', () => {
+  it('unRef', () => {
     const a = ref(1)
-    const b = 2
     expect(unRef(a)).toBe(1)
-    expect(unRef(b)).toBe(2)
+    expect(unRef(1)).toBe(1)
   })
 
-  // 一般 用在 template 解析中
-  test('proxyRefs', () => {
+	it('proxyRefs', () => {
     const user = {
-      age: ref(18),
-      name: 'aphelios'
+      age: ref(10),
+      name: 'xiaohong'
     }
-    // get -> age (ref) 给他返回 age.value
-    // get -> age (not ref) 给他返回 age
 
     const proxyUser = proxyRefs(user)
-    expect(user.age.value).toBe(18)
-    expect(user.name).toBe('aphelios')
-    expect(proxyUser.age).toBe(18)
-    expect(proxyUser.name).toBe('aphelios')
-
-    // set -> age (ref) 修改他的 age.value
-    // set -> age (not ref) 修改他的 age 直接使用 值 替换
-
-    proxyUser.age = 20
-    expect(user.age.value).toBe(20)
-    expect(proxyUser.age).toBe(20)
-
-
-    proxyUser.age = 10
     expect(user.age.value).toBe(10)
     expect(proxyUser.age).toBe(10)
-  })
+    expect(proxyUser.name).toBe('xiaohong')
 
+    proxyUser.age = 20
+
+    expect(proxyUser.age).toBe(20)
+    expect(user.age.value).toBe(20)
+
+    proxyUser.age = ref(10)
+    expect(proxyUser.age).toBe(10)
+    expect(user.age.value).toBe(10)
+  })
 })

@@ -1,30 +1,30 @@
 import { ReactiveEffect } from './effect'
 
 class ComputedRefImpl {
-	private _effect: any
-	private _gertter: any
-	private _value: any
-	private _dirty = true
-	constructor (gertter) {
-		this._gertter = gertter
-		this._effect = new ReactiveEffect(gertter, () => {
+	// private _getter: any
+  private _value: any
+  private _effect: any
+  private _dirty: boolean = true
+	constructor (getter) {
+		// this._getter = getter
+		this._effect = new ReactiveEffect(getter, () => {
 			if (!this._dirty) {
 				this._dirty = true
 			}
 		})
 	}
-	// 当依赖的响应式对象的值发生改变的时候需要重新调用 _getter ,即 _dirty 为true
 	get value () {
+		// get value --> _dirty is true
+		// 当依赖的响应式对象发生改变的时候 修改 _dirty
+		// effect
 		if (this._dirty) {
 			this._dirty = false
 			this._value = this._effect.run()
 		}
 		return this._value
 	}
-	set value (value) {
-
-	}
 }
+
 
 const computed = (getter) => {
 	return new ComputedRefImpl(getter)

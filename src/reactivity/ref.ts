@@ -1,32 +1,39 @@
+import { hasChanged, isObject } from '../shared'
 import { trackEffects, triggerEffects, isTracking } from './effect'
-import { haschange, isObject } from '../shared'
 import { reactive } from './reactive'
 
 class RefImpl {
+	private _value
+	private _rawValue
 	public dep
-	private  _value: any
-	private  _rawValue: any
-	private  __v_isRef = true
+	public __v_isRef = true
 	constructor(value) {
-		// 拿到最开始的值 因为如果传递进来的是一个对象可能在reactive以后就直接变成响应式对象了
+		// value 如果是对象 要用 reactive 转换成响应式对象
 		this._rawValue = value
-		// value --> object 需要转换成一个reactive 对象
-		this._value = convert(value)
+		this._value = covert(value)
 		this.dep = new Set()
 	}
-	get value() {
+	get value () {
 		trackRefValue(this)
 		return this._value
 	}
-	set value(newValue) {
-		// 当 两次的值是一样的 不修改值 避免触发trigger。
-		// 注意这里一定要比较之前的值 是一个普通对象 不用响应式对象去比较
-		if (haschange(newValue, this._rawValue)) {
+	set value (newValue) {
+		if (hasChanged(this._rawValue, newValue)) {
+			// 一定先修改值，再触发\
 			this._rawValue = newValue
-			this._value = convert(newValue)
-			// 一定先修改值 再去触发
+			this._value = covert(newValue)
 			triggerEffects(this.dep)
 		}
+	}
+}
+
+const covert = (value) => {
+	return isObject(value) ? reactive(value) : value
+}
+
+const trackRefValue = (ref) => {
+	if (isTracking()) {
+		trackEffects(ref.dep)
 	}
 }
 
@@ -34,41 +41,28 @@ const ref = (value) => {
 	return new RefImpl(value)
 }
 
-const convert = (value) => {
-	return isObject(value) ? reactive(value) : value
-}
-
-const trackRefValue = (refInstance) => {
-	if (isTracking()) {
-		trackEffects(refInstance.dep)
-	}
-}
-
 const isRef = (ref) => {
 	return !!ref.__v_isRef
 }
 
-// 返回 xx.value 或者 直接返回value
 const unRef = (ref) => {
-	if (isRef(ref)) {
-		return ref.value
-	}
-	return ref
+	return isRef(ref) ? ref.value: ref
 }
 
 const proxyRefs = (objectWithRefs) => {
+	// 如果获取的值 是 ref 类型 那么就返回 .value
+	// 如果获取的值 不是 ref 那么就直接返回 它本身的值
 	return new Proxy(objectWithRefs, {
 		get (target, key) {
-			// get -> age (ref) 给他返回 age.value
-			// get -> age (not ref) 给他返回 age
 			return unRef(Reflect.get(target, key))
 		},
-		// set -> age (ref) 修改他的 age.value
-		// set -> age (not ref) 修改他的 age 直接使用 值 替换
 		set (target, key, value) {
+			// 看看是 是 ref 类型 是的话修改 .value
+			// 看看是 不是 ref 类型 是的话修改 本身的值
 			if (isRef(target[key]) && !isRef(value)) {
-				return target[key].value = value
-			} else if (isRef(value)) {
+				return Reflect.set(target[key], 'value', value)
+				// return target[key].value = value
+			} else {
 				return Reflect.set(target, key, value)
 			}
 		}
