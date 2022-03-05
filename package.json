@@ -1,9 +1,9 @@
 {
   "name": "my-mini-vue",
   "version": "1.0.0",
-  "main": "index.js",
-  "module": "lib/guide-mini-vue.cjs.js",
-  "license": "lib/guide-mini-vue.esm.js",
+  "main": "lib/guide-mini-vue.cjs.js",
+  "module": "lib/guide-mini-vue.esm.js",
+  "license": "MIT",
   "scripts": {
     "test": "jest",
     "build": "rollup -c rollup.config.js"
