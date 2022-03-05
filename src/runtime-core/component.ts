@@ -43,7 +43,8 @@ const finishCompentSetup =(instance) => {
 	const Component = instance.type
 	const { render } = Component
 
-	if (!render) {
+	// render 存在时赋值
+	if (render) {
 		instance.render = render
 	}
 }

@@ -8,7 +8,11 @@ const render = (vnode, container) => {
 const patch = (vnode, container) => {
   // 去处理我们的组件
 
-	// 判断一下是不是 element 类型
+	// TODO 判断一下 vnode 是不是 element 类型
+	// 调用对应的方法去处理对应的 方法
+
+	// processElement()
+
   processComponent(vnode, container)
 }
 
@@ -32,4 +36,6 @@ const setupRenderEffect = (instance, container) => {
 
 }
 
-export { render }
+export {
+	render
+}

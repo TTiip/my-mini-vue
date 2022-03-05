@@ -14,4 +14,6 @@ const createApp = (rootComponent) => {
   }
 }
 
-export { createApp }
+export {
+	createApp
+}

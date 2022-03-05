@@ -1,3 +1,5 @@
+import { h } from '../../lib/guide-mini-vue.esm.js'
+
 const App = {
 	// .vue
 	// <template></template>
@@ -15,6 +17,4 @@ const App = {
 	}
 }
 
-export {
-	App
-}
+export default App
