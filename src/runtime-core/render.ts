@@ -6,11 +6,11 @@ const processComponent = (vnode, container) => {
   mountComponent(vnode, container)
 }
 
-const mountComponent = (vnode, container) => {
-  const instance = createComponentInstance(vnode,)
+const mountComponent = (initinalVNode, container) => {
+  const instance = createComponentInstance(initinalVNode)
 
 	setupComponent(instance)
-	setupRenderEffect(instance, container)
+	setupRenderEffect(instance, initinalVNode, container)
 }
 
 const mountChildren = (children, container) => {
@@ -26,7 +26,8 @@ const processElement = (vnode, container) => {
 }
 
 const mountElement = (vnode, container) => {
-	const el = document.createElement(vnode.type)
+	// vnode --> element 类型的 --> div
+	const el = vnode.el = document.createElement(vnode.type)
 
 	// children 可能是 string  array
 	const { children, props } = vnode
@@ -69,13 +70,15 @@ const patch = (vnode, container) => {
 	}
 }
 
-const setupRenderEffect = (instance, container) => {
-	const subTree = instance.render()
+const setupRenderEffect = (instance, initinalVNode, container) => {
+	const { proxy } = instance
+	const subTree = instance.render.call(proxy)
 
 	// vnode --> patch
 	// vnode --> element --> mount
 	patch(subTree, container)
 
+	initinalVNode.el = subTree.el
 }
 
 export {

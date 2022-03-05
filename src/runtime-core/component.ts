@@ -1,7 +1,10 @@
+import { publickInstanceProxyhandlers } from './componentPublicInstance'
+
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
-		type: vnode.type
+		type: vnode.type,
+		setupState: {}
 	}
 
 	return component
@@ -11,13 +14,18 @@ const setupComponent = (instance) => {
 	// TODO initProps
 	// TODO initSlot
 
-	//
+	// initComponent
 	setupStatefulComponent(instance)
 }
 
 const setupStatefulComponent = (instance) => {
 	const Component = instance.type
 	const { setup } = Component
+
+	// ctx
+	instance.proxy = new Proxy({
+		_: instance
+	},publickInstanceProxyhandlers)
 
 	// 用户可能不会写 setup 函数
 	if (setup) {
