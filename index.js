@@ -2,6 +2,10 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var isObject = function (value) {
+    return value !== null && typeof value === 'object';
+};
+
 var createComponentInstance = function (vnode) {
     var component = {
         vnode: vnode,
@@ -43,30 +47,56 @@ var finishCompentSetup = function (instance) {
     }
 };
 
+// Component
+var processComponent = function (vnode, container) {
+    mountComponent(vnode, container);
+};
+var mountComponent = function (vnode, container) {
+    var instance = createComponentInstance(vnode);
+    setupComponent(instance);
+    setupRenderEffect(instance, container);
+};
+// Element
+var processElement = function (vnode, container) {
+    mountElement(vnode, container);
+};
+var mountElement = function (vnode, container) {
+    var el = document.createElement(vnode.type);
+    // children 可能时 string  array
+    // TODO array
+    var children = vnode.children, props = vnode.props;
+    // children
+    el.textContent = children;
+    // props
+    for (var key in props) {
+        var val = props[key];
+        el.setAttribute(key, val);
+    }
+    // 挂在在页面上
+    container.append(el);
+};
 var render = function (vnode, container) {
     // patch
-    patch(vnode);
+    patch(vnode, container);
 };
 var patch = function (vnode, container) {
     // 去处理我们的组件
     // TODO 判断一下 vnode 是不是 element 类型
     // 调用对应的方法去处理对应的 方法
     // processElement()
-    processComponent(vnode);
-};
-var processComponent = function (vnode, container) {
-    mountComponent(vnode);
-};
-var mountComponent = function (vnode, container) {
-    var instance = createComponentInstance(vnode);
-    setupComponent(instance);
-    setupRenderEffect(instance);
+    if (typeof vnode.type === 'string') {
+        console.log(111);
+        processElement(vnode, container);
+    }
+    else if (isObject(vnode.type)) {
+        processComponent(vnode, container);
+    }
 };
 var setupRenderEffect = function (instance, container) {
     var subTree = instance.render();
     // vnode --> patch
     // vnode --> element --> mount
-    patch(subTree);
+    patch(subTree, container);
 };
 
 var createVNode = function (type, props, children) {
@@ -84,7 +114,7 @@ var createApp = function (rootComponent) {
             // component --> vnode
             // 后续所有的逻辑操作 都会基于 vnode 去操作
             var vnode = createVNode(rootComponent);
-            render(vnode);
+            render(vnode, rootContainer);
         }
     };
 };
