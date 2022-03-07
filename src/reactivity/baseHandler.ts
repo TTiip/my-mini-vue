@@ -1,7 +1,7 @@
 import { track, trigger } from './effect'
 import { ReactiveFlags } from '../reactivity/enum'
 import { reactive, readonly } from './reactive'
-import { extend, isObject } from '../shared'
+import { extend, isObject } from '../shared/index'
 
 let get
 let readOnlyGet
@@ -65,7 +65,7 @@ const mutableHandlers = {
 const readonlyHandlers = {
 	get: readOnlyGet,
 	set (target, key, value) {
-		console.warn(`key: ${key} set 失败, 因为 target 是 readonly状态!`, target)
+		console.warn(`key: ${key} set 失败, 因为 target:`, target, `是 readonly状态!`)
 		return true
 	}
 }

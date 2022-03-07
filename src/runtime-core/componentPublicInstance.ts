@@ -1,3 +1,5 @@
+import { hasOwn } from '../shared/index'
+
 const publicPropertiesMap = {
 	$el: (i) => i.vnode.el
 }
@@ -7,10 +9,12 @@ const publickInstanceProxyhandlers = {
 		// setupState
 		// 这里必须要在这里 获取 setupState
 		// 因为 只有在初始化组件 的时候 获取 setupState
-		const { setupState, vnode } = instance
-		if (key in setupState) {
+		const { setupState, props } = instance
+		if (hasOwn(setupState, key)) {
 			// setupState 里面获取值
 			return setupState[key]
+		} else if (hasOwn(props, key)) {
+			return props[key]
 		}
 
 		// $el

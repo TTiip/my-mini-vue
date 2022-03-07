@@ -13,12 +13,15 @@ const hasChanged = (val, newValue) => {
 const getShapeFlag = (type) => {
 	return typeof type === 'string'
     ? ShapeFlags.ELEMENT
-    : ShapeFlags.STATEFUL_COMPONENT;
+    : ShapeFlags.STATEFUL_COMPONENT
 }
+
+const hasOwn = (val = {}, key) => Object.prototype.hasOwnProperty.call(val, key)
 
 export {
 	extend,
 	isObject,
 	hasChanged,
-	getShapeFlag
+	getShapeFlag,
+	hasOwn
 }

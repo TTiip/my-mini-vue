@@ -1,9 +1,12 @@
+import { shallowReadonly } from '../reactivity/reactive'
+import { initProps } from './componentProps'
 import { publickInstanceProxyhandlers } from './componentPublicInstance'
 
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
 		type: vnode.type,
+		props: {},
 		setupState: {}
 	}
 
@@ -11,7 +14,8 @@ const createComponentInstance = (vnode) => {
 }
 
 const setupComponent = (instance) => {
-	// TODO initProps
+	// initProps
+	initProps(instance, instance.vnode.props)
 	// TODO initSlot
 
 	// initComponent
@@ -25,12 +29,12 @@ const setupStatefulComponent = (instance) => {
 	// ctx
 	instance.proxy = new Proxy({
 		_: instance
-	},publickInstanceProxyhandlers)
+	}, publickInstanceProxyhandlers)
 
 	// 用户可能不会写 setup 函数
 	if (setup) {
 		// 可以返回一个 fn 也可能是一个 object
-		const setupResult = setup()
+		const setupResult = setup(shallowReadonly(instance.props))
 
 		handleSetupResult(instance, setupResult)
 	}

@@ -1,8 +1,13 @@
+import { isObject } from '../shared/index'
 import { mutableHandlers, readonlyHandlers, shallowReadonlyHandlers } from './baseHandler'
 import { ReactiveFlags } from './enum'
 
 const createActiveObject = (raw, baseHandlers) => {
-	return new Proxy(raw, baseHandlers)
+	if (!isObject(raw)) {
+		console.warn(`target: ${raw} 必须是一个对象！`)
+	} else {
+		return new Proxy(raw, baseHandlers)
+	}
 }
 
 const reactive = (raw) => {
