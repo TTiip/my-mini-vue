@@ -46,7 +46,7 @@ const mountElement = (vnode, container) => {
 		} else {
 			val = props[key]
 		}
-		// 实现注册 emit 事件
+		// 实现注册 事件
 		const isOn = key => /^on[A-Z]/.test(key)
 		if (isOn(key)) {
 			const eventName = key.slice(2).toLowerCase()
