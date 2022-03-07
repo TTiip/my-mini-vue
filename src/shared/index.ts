@@ -18,10 +18,25 @@ const getShapeFlag = (type) => {
 
 const hasOwn = (val = {}, key) => Object.prototype.hasOwnProperty.call(val, key)
 
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+
+const camelize = (str: string) => {
+	// ex: add-foo
+	// _ 代表匹配到的值规则（-f）
+	// targetValue 代表匹配到的值（f）
+	return str.replace(/-(\w)/g, (_, targetValue: string) => {
+		return targetValue ? targetValue.toUpperCase() : ''
+	})
+}
+// add --> onAdd
+const toHandlerKey = (str: string) => str ? camelize('on' + capitalize(str)) : ''
+
 export {
 	extend,
 	isObject,
 	hasChanged,
 	getShapeFlag,
-	hasOwn
+	hasOwn,
+	camelize,
+	toHandlerKey
 }
