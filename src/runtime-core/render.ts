@@ -40,7 +40,6 @@ const mountElement = (vnode, container) => {
 
 	// props
 	for (const key in props) {
-		console.log(key, 'key')
 		let val
 		if (Array.isArray(props[key])) {
 			val = props[key].join(' ')
