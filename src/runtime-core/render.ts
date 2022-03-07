@@ -1,5 +1,6 @@
 import { ShapeFlags } from '../shared/ShapeFlags'
 import { createComponentInstance, setupComponent } from './component'
+import { Fragment, Text  } from './vnode'
 
 // Component
 const processComponent = (vnode, container) => {
@@ -13,9 +14,9 @@ const mountComponent = (initinalVNode, container) => {
 	setupRenderEffect(instance, initinalVNode, container)
 }
 
-const mountChildren = (children, container) => {
-	// 便利children 拿到节点 再次调用patch
-	children.map(childrenItem => {
+const mountChildren = (vnode, container) => {
+	// 遍历 children 拿到节点 再次调用patch
+	vnode.children.map(childrenItem => {
 		patch(childrenItem, container)
 	})
 }
@@ -35,7 +36,7 @@ const mountElement = (vnode, container) => {
 		// children
 		el.textContent = children
 	} else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-		mountChildren(children, el)
+		mountChildren(vnode, el)
 	}
 
 	// props
@@ -58,19 +59,41 @@ const mountElement = (vnode, container) => {
 	// 挂载在页面上
 	container.append(el)
 }
+
+//  Fragment
+const processFragment = (vnode, container) => {
+	mountChildren(vnode, container)
+}
+
+// Text
+const processText = (vnode, container) => {
+	const { children } = vnode
+	const textNode = vnode.el = document.createTextNode(children)
+	container.append(textNode)
+}
+
 const render = (vnode, container) => {
-  // patch
   patch(vnode, container)
 }
 
 const patch = (vnode, container) => {
 	// 判断一下 vnode 类型
 	// 调用对应的方法去处理
-	const { shapeFlag } = vnode
-	if (shapeFlag & ShapeFlags.ELEMENT) {
-		processElement(vnode, container)
-	} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-		processComponent(vnode, container)
+	const { type, shapeFlag } = vnode
+	switch (type) {
+		case Fragment:
+			processFragment(vnode, container)
+			break
+		case Text:
+			processText(vnode, container)
+			break
+		default:
+			if (shapeFlag & ShapeFlags.ELEMENT) {
+				processElement(vnode, container)
+			} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+				processComponent(vnode, container)
+			}
+			break
 	}
 }
 
