@@ -4,6 +4,8 @@ import { initProps } from './componentProps'
 import { initSlots } from './componentSlots'
 import { publickInstanceProxyhandlers } from './componentPublicInstance'
 
+let currentInstance
+
 const createComponentInstance = (vnode) => {
 	const component = {
 		vnode,
@@ -38,12 +40,18 @@ const setupStatefulComponent = (instance) => {
 
 	// 用户可能不会写 setup 函数
 	if (setup) {
+		// 初始化获取 instance
+		setCurrentInstance(instance)
+
 		// 可以返回一个 fn 也可能是一个 object
 		const setupResult = setup(shallowReadonly(instance.props), {
 			emit: instance.emit
 		})
 
 		handleSetupResult(instance, setupResult)
+
+		// 重制获取 instance
+		setCurrentInstance(null)
 	}
 }
 
@@ -68,8 +76,17 @@ const finishCompentSetup =(instance) => {
 	}
 }
 
+const getCurrentInstance = () => {
+	return currentInstance
+}
+
+const setCurrentInstance = (instance) => {
+  currentInstance = instance;
+}
+
 export {
 	createComponentInstance,
 	setupComponent,
-	setupStatefulComponent
+	setupStatefulComponent,
+	getCurrentInstance
 }
