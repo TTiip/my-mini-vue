@@ -40,13 +40,21 @@ const mountElement = (vnode, container) => {
 
 	// props
 	for (const key in props) {
+		console.log(key, 'key')
 		let val
 		if (Array.isArray(props[key])) {
 			val = props[key].join(' ')
 		} else {
 			val = props[key]
 		}
-		el.setAttribute(key, val)
+		// 实现注册 emit 事件
+		const isOn = key => /^on[A-Z]/.test(key)
+		if (isOn(key)) {
+			const eventName = key.slice(2).toLowerCase()
+			el.addEventListener(eventName, val)
+		} else {
+			el.setAttribute(key, val)
+		}
 	}
 	// 挂载在页面上
 	container.append(el)

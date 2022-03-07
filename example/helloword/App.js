@@ -13,7 +13,13 @@ const App = {
 			'dev',
 			{
 				id: 'root',
-				class: ['red', 'hard']
+				class: ['red', 'hard'],
+        onClick () {
+          console.log('click')
+        },
+        onMousedown () {
+          console.log('mousedown')
+        }
 			},
 			// string 类型
 			// setupState 能够获取到setup种返回的 变量
