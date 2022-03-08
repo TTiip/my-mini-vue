@@ -6,9 +6,9 @@ import { Fragment, Text  } from './vnode'
 // custom render
 const createRender = (options) => {
 	const {
-		createElement,
-		patchProp,
-		insert
+		createElement: hostCreateElement,
+		patchProp: hostPatchProp,
+		insert: hostInsert
 	} = options
 
 	// Component
@@ -37,7 +37,7 @@ const createRender = (options) => {
 
 	const mountElement = (vnode, container, parentComponent) => {
 		// vnode --> element 类型的 --> div
-		const el = vnode.el = createElement(vnode.type)
+		const el = vnode.el = hostCreateElement(vnode.type)
 
 		// children 可能是 string  array
 		const { children, props, shapeFlag } = vnode
@@ -56,11 +56,11 @@ const createRender = (options) => {
 			} else {
 				val = props[key]
 			}
-			patchProp(el, key, val)
+			hostPatchProp(el, key, val)
 		}
 
 		// 挂载在页面上
-		insert(el, container)
+		hostInsert(el, container)
 	}
 
 	//  Fragment
