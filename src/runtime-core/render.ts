@@ -1,5 +1,6 @@
 import { effect } from '../reactivity/effect'
 import { ShapeFlags } from '../shared/ShapeFlags'
+import { EMPTY_OBJ } from '../shared'
 import { createComponentInstance, setupComponent } from './component'
 import { createAppAPI } from './createApp'
 import { Fragment, Text  } from './vnode'
@@ -44,6 +45,42 @@ const createRender = (options) => {
 		console.log('patchElement')
 		console.log('n1', n1)
 		console.log('n2', n2)
+		// props 修改 有以下几种情况：
+		// 1.之前属性的值和现在的值不一样了          --> 修改
+		// 2.之前属性的值变成 undefined 或者 null  --> 删除
+		// 3.之前属性的值 现在没有了               --> 删除
+
+		const oldProps = n1.props || EMPTY_OBJ
+		const newProps = n2.props || EMPTY_OBJ
+		// 当 第二次 patchElement 时 第一次的 n2 应该当作 第二次的 n1 去使用
+		// 但是 n2 上并不存在 el 所以此处应当赋值以便于第二次调用。
+		const el = n2.el = n1.el
+		patchProps(el, oldProps, newProps)
+	}
+
+	const patchProps = (el, oldProps, newProps) => {
+		if (oldProps !== newProps) {
+			for (const key in newProps) {
+				const prevProp = oldProps[key]
+				const nextProp = newProps[key]
+				if (prevProp !== nextProp) {
+					// 不相等的时候更新
+					hostPatchProp(el, key, prevProp, nextProp)
+				}
+			}
+
+			// 不等与空对象 才会去对比
+			// 不能直接 rops !== {} 这个相当于创建了一个新的内存地址 这个判断一定是 true
+			if (oldProps !== EMPTY_OBJ) {
+				// 如果新设置的props 在原来的 props中不存在 则直接删除掉。
+				for (const key in oldProps) {
+					const prevProp = oldProps[key]
+					if (!(key in newProps )) {
+						hostPatchProp(el, key, prevProp, null)
+					}
+				}
+			}
+		}
 	}
 
 	const mountElement = (vnode, container, parentComponent) => {
@@ -67,7 +104,7 @@ const createRender = (options) => {
 			} else {
 				val = props[key]
 			}
-			hostPatchProp(el, key, val)
+			hostPatchProp(el, key, null, val)
 		}
 
 		// 挂载在页面上

@@ -4,14 +4,19 @@ const createElement = (type) => {
 	return document.createElement(type)
 }
 
-const patchProp = (el, key, val) => {
+const patchProp = (el, key, prevVal, nextVal) => {
 	// 实现注册 事件
 	const isOn = key => /^on[A-Z]/.test(key)
 	if (isOn(key)) {
 		const eventName = key.slice(2).toLowerCase()
-		el.addEventListener(eventName, val)
+		el.addEventListener(eventName, nextVal)
 	} else {
-		el.setAttribute(key, val)
+		// 如果设置值为 undefined 或者 null 的时候删除掉该属性
+		if (nextVal == null) {
+			el.removeAttribute(key)
+		} else {
+			el.setAttribute(key, nextVal)
+		}
 	}
 }
 

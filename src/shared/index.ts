@@ -2,6 +2,9 @@ import { ShapeFlags } from './ShapeFlags'
 
 const extend = Object.assign
 
+// 设置一个全局空对象方便后续曲比较
+const EMPTY_OBJ = {}
+
 const isObject = (value) => {
 	return value !== null && typeof value === 'object'
 }
@@ -33,6 +36,7 @@ const toHandlerKey = (str: string) => str ? camelize('on' + capitalize(str)) : '
 
 export {
 	extend,
+	EMPTY_OBJ,
 	isObject,
 	hasChanged,
 	getShapeFlag,
