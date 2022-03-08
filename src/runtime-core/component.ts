@@ -6,14 +6,18 @@ import { publickInstanceProxyhandlers } from './componentPublicInstance'
 
 let currentInstance
 
-const createComponentInstance = (vnode) => {
+const createComponentInstance = (vnode, parent) => {
+	console.log('createComponentInstance', parent)
 	const component = {
 		vnode,
 		type: vnode.type,
 		props: {},
 		emit: {},
 		slots: {},
-		setupState: {}
+		setupState: {},
+		parent,
+		// parent,
+		provides: parent ? parent.provides : {}
 	}
 	component.emit = emit.bind(null, component)
 
