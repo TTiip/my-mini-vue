@@ -1,5 +1,1 @@
-const add = (a, b) => a + b
-
-export {
-	add
-}
+export * from './ref'

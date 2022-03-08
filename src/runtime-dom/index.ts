@@ -36,5 +36,3 @@ export {
 	render,
 	createApp
 }
-
-export * from '../runtime-core'

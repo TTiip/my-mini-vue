@@ -3,11 +3,11 @@ import { emit } from './componentEmit'
 import { initProps } from './componentProps'
 import { initSlots } from './componentSlots'
 import { publickInstanceProxyhandlers } from './componentPublicInstance'
+import { proxyRefs } from '../reactivity'
 
 let currentInstance
 
 const createComponentInstance = (vnode, parent) => {
-	console.log('createComponentInstance', parent)
 	const component = {
 		vnode,
 		type: vnode.type,
@@ -64,7 +64,7 @@ const handleSetupResult = (instance, setupResult) => {
 	// TODO function
 
 	if (typeof setupResult === 'object') {
-		instance.setupState = setupResult
+		instance.setupState = proxyRefs(setupResult)
 	}
 	// 初始化 render 函数
 	finishCompentSetup(instance)

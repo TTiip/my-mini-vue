@@ -1,3 +1,4 @@
+import { effect } from '../reactivity/effect'
 import { ShapeFlags } from '../shared/ShapeFlags'
 import { createComponentInstance, setupComponent } from './component'
 import { createAppAPI } from './createApp'
@@ -101,14 +102,18 @@ const createRender = (options) => {
 	}
 
 	const setupRenderEffect = (instance, initinalVNode, container) => {
-		const { proxy } = instance
-		const subTree = instance.render.call(proxy)
+		// 利用 effect 做依赖收集
+		effect(() => {
+			const { proxy } = instance
+			const subTree = instance.render.call(proxy)
+			console.log(subTree, 'subTree')
 
-		// vnode --> patch
-		// vnode --> element --> mount
-		patch(subTree, container, instance)
+			// vnode --> patch
+			// vnode --> element --> mount
+			patch(subTree, container, instance)
 
-		initinalVNode.el = subTree.el
+			initinalVNode.el = subTree.el
+		})
 	}
 
 	return {
