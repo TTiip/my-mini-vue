@@ -13,8 +13,8 @@ const createRender = (options) => {
 	} = options
 
 	// Component
-	const processComponent = (vnode, container, parentComponent) => {
-		mountComponent(vnode, container, parentComponent)
+	const processComponent = (n1, n2, container, parentComponent) => {
+		mountComponent(n2, container, parentComponent)
 	}
 
 	const mountComponent = (initinalVNode, container, parentComponent) => {
@@ -27,13 +27,23 @@ const createRender = (options) => {
 	const mountChildren = (vnode, container, parentComponent) => {
 		// 遍历 children 拿到节点 再次调用patch
 		vnode.children.map(childrenItem => {
-			patch(childrenItem, container, parentComponent)
+			patch(null, childrenItem, container, parentComponent)
 		})
 	}
 
 	// Element
-	const processElement = (vnode, container, parentComponent) => {
-		mountElement(vnode, container, parentComponent)
+	const processElement = (n1, n2, container, parentComponent) => {
+		if (!n1) {
+			mountElement(n2, container, parentComponent)
+		} else {
+			patchElement(n1, n2, container)
+		}
+	}
+
+	const patchElement = (n1, n2, container) => {
+		console.log('patchElement')
+		console.log('n1', n1)
+		console.log('n2', n2)
 	}
 
 	const mountElement = (vnode, container, parentComponent) => {
@@ -65,37 +75,37 @@ const createRender = (options) => {
 	}
 
 	//  Fragment
-	const processFragment = (vnode, container, parentComponent) => {
-		mountChildren(vnode, container, parentComponent)
+	const processFragment = (n1, n2, container, parentComponent) => {
+		mountChildren(n2, container, parentComponent)
 	}
 
 	// Text
-	const processText = (vnode, container) => {
-		const { children } = vnode
-		const textNode = vnode.el = document.createTextNode(children)
+	const processText = (n1, n2, container) => {
+		const { children } = n2
+		const textNode = n2.el = document.createTextNode(children)
 		container.append(textNode)
 	}
 
 	const render = (vnode, container) => {
-		patch(vnode, container, null)
+		patch(null, vnode, container, null)
 	}
 
-	const patch = (vnode, container, parentComponent) => {
+	const patch = (n1, n2, container, parentComponent) => {
 		// 判断一下 vnode 类型
 		// 调用对应的方法去处理
-		const { type, shapeFlag } = vnode
+		const { type, shapeFlag } = n2
 		switch (type) {
 			case Fragment:
-				processFragment(vnode, container, parentComponent)
+				processFragment(n1, n2, container, parentComponent)
 				break
 			case Text:
-				processText(vnode, container)
+				processText(n1, n2, container)
 				break
 			default:
 				if (shapeFlag & ShapeFlags.ELEMENT) {
-					processElement(vnode, container, parentComponent)
+					processElement(n1, n2, container, parentComponent)
 				} else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-					processComponent(vnode, container, parentComponent)
+					processComponent(n1, n2, container, parentComponent)
 				}
 				break
 		}
@@ -104,15 +114,30 @@ const createRender = (options) => {
 	const setupRenderEffect = (instance, initinalVNode, container) => {
 		// 利用 effect 做依赖收集
 		effect(() => {
-			const { proxy } = instance
-			const subTree = instance.render.call(proxy)
-			console.log(subTree, 'subTree')
+			if (!instance.insMounted) {
+				console.log('init')
+				const { proxy } = instance
+				const subTree = instance.subTree = instance.render.call(proxy)
 
-			// vnode --> patch
-			// vnode --> element --> mount
-			patch(subTree, container, instance)
+				// vnode --> patch
+				// vnode --> element --> mount
+				patch(null, subTree, container, instance)
 
-			initinalVNode.el = subTree.el
+				initinalVNode.el = subTree.el
+				instance.insMounted = true
+			} else {
+				console.log('update')
+				const { proxy } = instance
+				const prevSubTree = instance.subTree
+				const subTree = instance.subTree = instance.render.call(proxy)
+
+				// vnode --> patch
+				// vnode --> element --> mount
+				patch(prevSubTree, subTree, container, instance)
+
+				initinalVNode.el = subTree.el
+				instance.insMounted = true
+			}
 		})
 	}
 

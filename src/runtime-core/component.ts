@@ -17,7 +17,8 @@ const createComponentInstance = (vnode, parent) => {
 		setupState: {},
 		parent,
 		// parent,
-		provides: parent ? parent.provides : {}
+		provides: parent ? parent.provides : {},
+		insMounted: false
 	}
 	component.emit = emit.bind(null, component)
 
