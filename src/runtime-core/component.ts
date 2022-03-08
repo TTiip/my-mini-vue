@@ -18,7 +18,8 @@ const createComponentInstance = (vnode, parent) => {
 		parent,
 		// parent,
 		provides: parent ? parent.provides : {},
-		insMounted: false
+		insMounted: false,
+		subTree: {}
 	}
 	component.emit = emit.bind(null, component)
 

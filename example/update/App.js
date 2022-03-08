@@ -8,7 +8,6 @@ const App = {
 
     const onClick = () => {
 			count.value++
-			console.log(count.value)
     }
 
     return {
