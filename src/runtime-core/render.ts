@@ -116,8 +116,37 @@ const createRender = (options) => {
 				// 1.把老的 text 清空
 				hostSetElementText(container, '')
 				mountChildren(nextChildren, container, parentComponent)
+			} else {
+				// 老的是 array 新的也是 array
+				patchKeyedChildren(prevChildren, nextChildren, container, parentComponent)
 			}
 		}
+	}
+
+	const patchKeyedChildren = (c1, c2, container, parentComponent) => {
+		let i = 0
+		let e1 = c1.length - 1
+		let e2 = c2.length - 1
+		// i 标识双端对比的相同部分的下标
+		// e1 e2 分别表示 原数据 和现数据 末尾端 的下标
+		while (i <= e1 && i <= e2) {
+			const n1 = c1[i]
+			const n2 = c2[i]
+			if (isSameVNodeType(n1, n2)) {
+				patch(n1, n2, container, parentComponent)
+			} else {
+				break
+			}
+			// 相等的时候 每次移动指针 i
+			i++
+		}
+		console.log('i', i)
+	}
+
+	const isSameVNodeType = (n1, n2) => {
+		// type key 两个东西去判断是不是想等
+		return n1.type === n2.type && n1.key === n2.key
+		return false
 	}
 
 	const unmountChildren = (children) => {
