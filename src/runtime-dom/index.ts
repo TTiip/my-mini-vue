@@ -20,8 +20,9 @@ const patchProp = (el, key, prevVal, nextVal) => {
 	}
 }
 
-const insert = (el, container) => {
-	container.append(el)
+const insert = (child, parent, anchor = null) => {
+	// parent.append(child)
+	parent.insertBefore(child, anchor)
 }
 
 const remove = (children) => {

@@ -21,17 +21,22 @@ import { ref, h } from '../../lib/guide-mini-vue.esm.js'
 // 2. 右侧的对比
 // a (b c)
 // d e (b c)
-const prevChildren = [
-  h('p', { key: 'A' }, 'A'),
-  h('p', { key: 'B' }, 'B'),
-  h('p', { key: 'C' }, 'C')
-]
-const nextChildren = [
-  h('p', { key: 'D' }, 'D'),
-  h('p', { key: 'E' }, 'E'),
-  h('p', { key: 'B' }, 'B'),
-  h('p', { key: 'C' }, 'C')
-]
+// const prevChildren = [
+//   h('p', { key: 'A' }, 'A'),
+//   h('p', { key: 'B' }, 'B'),
+//   h('p', { key: 'C' }, 'C')
+// ]
+// const nextChildren = [
+//   h('p', { key: 'D' }, 'D'),
+//   h('p', { key: 'E' }, 'E'),
+//   h('p', { key: 'B' }, 'B'),
+//   h('p', { key: 'C' }, 'C')
+// ]
+
+
+// ##########
+// 以上两个例子没有实际效果仅仅是用来 确定 双端对比中 i 的下标！！！
+
 
 // 3. 新的比老的长
 //     创建新的
@@ -49,10 +54,11 @@ const nextChildren = [
 
 // 右侧
 // (a b)
-// c (a b)
+// d c (a b)
 // i = 0, e1 = -1, e2 = 0
 // const prevChildren = [h('p', { key: 'A' }, 'A'), h('p', { key: 'B' }, 'B')]
 // const nextChildren = [
+//   h('p', { key: 'D' }, 'D'),
 //   h('p', { key: 'C' }, 'C'),
 //   h('p', { key: 'A' }, 'A'),
 //   h('p', { key: 'B' }, 'B')
@@ -61,27 +67,29 @@ const nextChildren = [
 // 4. 老的比新的长
 //     删除老的
 // 左侧
-// (a b) c
+// (a b) c d
 // (a b)
 // i = 2, e1 = 2, e2 = 1
 // const prevChildren = [
 //   h('p', { key: 'A' }, 'A'),
 //   h('p', { key: 'B' }, 'B'),
-//   h('p', { key: 'C' }, 'C')
+//   h('p', { key: 'C' }, 'C'),
+//   h('p', { key: 'D' }, 'D')
 // ]
 // const nextChildren = [h('p', { key: 'A' }, 'A'), h('p', { key: 'B' }, 'B')]
 
 // 右侧
-// a (b c)
-// (b c)
+// a b (c d)
+// (c d)
 // i = 0, e1 = 0, e2 = -1
 
-// const prevChildren = [
-//   h('p', { key: 'A' }, 'A'),
-//   h('p', { key: 'B' }, 'B'),
-//   h('p', { key: 'C' }, 'C')
-// ]
-// const nextChildren = [h('p', { key: 'B' }, 'B'), h('p', { key: 'C' }, 'C')]
+const prevChildren = [
+  h('p', { key: 'A' }, 'A'),
+  h('p', { key: 'B' }, 'B'),
+  h('p', { key: 'C' }, 'C'),
+  h('p', { key: 'D' }, 'D')
+]
+const nextChildren = [h('p', { key: 'C' }, 'C'), h('p', { key: 'D' }, 'D')]
 
 // 5. 对比中间的部分
 //    1. 创建新的 （在老的里面不存在，新的里面存在）
