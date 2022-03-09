@@ -10,7 +10,9 @@ const createRender = (options) => {
 	const {
 		createElement: hostCreateElement,
 		patchProp: hostPatchProp,
-		insert: hostInsert
+		insert: hostInsert,
+		remove: hostRemove,
+		setElementText: hostSetElementText,
 	} = options
 
 	// Component
@@ -25,9 +27,9 @@ const createRender = (options) => {
 		setupRenderEffect(instance, initinalVNode, container)
 	}
 
-	const mountChildren = (vnode, container, parentComponent) => {
+	const mountChildren = (children, container, parentComponent) => {
 		// 遍历 children 拿到节点 再次调用patch
-		vnode.children.map(childrenItem => {
+		children.map(childrenItem => {
 			patch(null, childrenItem, container, parentComponent)
 		})
 	}
@@ -37,14 +39,14 @@ const createRender = (options) => {
 		if (!n1) {
 			mountElement(n2, container, parentComponent)
 		} else {
-			patchElement(n1, n2, container)
+			patchElement(n1, n2, parentComponent)
 		}
 	}
 
-	const patchElement = (n1, n2, container) => {
-		console.log('patchElement')
-		console.log('n1', n1)
-		console.log('n2', n2)
+	const patchElement = (n1, n2, parentComponent) => {
+		// console.log('patchElement')
+		// console.log('n1', n1)
+		// console.log('n2', n2)
 		// props 修改 有以下几种情况：
 		// 1.之前属性的值和现在的值不一样了          --> 修改
 		// 2.之前属性的值变成 undefined 或者 null  --> 删除
@@ -56,6 +58,13 @@ const createRender = (options) => {
 		// 但是 n2 上并不存在 el 所以此处应当赋值以便于第二次调用。
 		const el = n2.el = n1.el
 		patchProps(el, oldProps, newProps)
+
+		// children 修改有以下几种情况
+		// text --> text
+		// text --> array
+		// array --> array
+		// array --> text
+		patchChildren(n1, n2, el, parentComponent)
 	}
 
 	const patchProps = (el, oldProps, newProps) => {
@@ -70,7 +79,7 @@ const createRender = (options) => {
 			}
 
 			// 不等与空对象 才会去对比
-			// 不能直接 rops !== {} 这个相当于创建了一个新的内存地址 这个判断一定是 true
+			// 不能直接 rops !== {} 这个相当于创建了一个新的内存地址 所以这个判断一定是 true
 			if (oldProps !== EMPTY_OBJ) {
 				// 如果新设置的props 在原来的 props中不存在 则直接删除掉。
 				for (const key in oldProps) {
@@ -83,6 +92,42 @@ const createRender = (options) => {
 		}
 	}
 
+	const patchChildren = (n1, n2, container, parentComponent) => {
+		const prevShapeFlag = n1.shapeFlag
+		const nextShapeFlag = n2.shapeFlag
+		const prevChildren = n1.children
+		const nextChildren = n2.children
+
+		if (nextShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+			if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+				// 老的是 array & 新的是 text
+				// 1.把老的 children 清空
+				unmountChildren(n1.children)
+				// 2.设置 text
+				// hostSetElementText(container, nextChildren)
+			}
+			// 老的是 text & 新的是 text
+			if (prevChildren !== nextChildren) {
+				hostSetElementText(container, nextChildren)
+			}
+		} else {
+			// 老的是 array & 新的是 text
+			if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+				// 1.把老的 text 清空
+				hostSetElementText(container, '')
+				mountChildren(nextChildren, container, parentComponent)
+			}
+		}
+	}
+
+	const unmountChildren = (children) => {
+		children.map(item => {
+			const el = item.el
+			// remove
+			hostRemove(el)
+		})
+	}
+
 	const mountElement = (vnode, container, parentComponent) => {
 		// vnode --> element 类型的 --> div
 		const el = vnode.el = hostCreateElement(vnode.type)
@@ -93,7 +138,7 @@ const createRender = (options) => {
 			// children
 			el.textContent = children
 		} else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-			mountChildren(vnode, el, parentComponent)
+			mountChildren(vnode.children, el, parentComponent)
 		}
 
 		// props
@@ -113,7 +158,7 @@ const createRender = (options) => {
 
 	//  Fragment
 	const processFragment = (n1, n2, container, parentComponent) => {
-		mountChildren(n2, container, parentComponent)
+		mountChildren(n2.children, container, parentComponent)
 	}
 
 	// Text
@@ -152,7 +197,6 @@ const createRender = (options) => {
 		// 利用 effect 做依赖收集
 		effect(() => {
 			if (!instance.insMounted) {
-				console.log('init')
 				const { proxy } = instance
 				const subTree = instance.subTree = instance.render.call(proxy)
 
@@ -163,7 +207,6 @@ const createRender = (options) => {
 				initinalVNode.el = subTree.el
 				instance.insMounted = true
 			} else {
-				console.log('update')
 				const { proxy } = instance
 				const prevSubTree = instance.subTree
 				const subTree = instance.subTree = instance.render.call(proxy)
