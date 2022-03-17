@@ -248,7 +248,7 @@ const createRender = (options) => {
 
 			for (let i = toBePatched - 1; i >= 0; i--) {
 				const nextIndex = i + s2
-				const nextChild = c2[nextIndex]
+				const nextChild = c2[newIndex]
 				const anchor = nextIndex + 1 < l2 ? c2[nextIndex + 1].el : null
 
 				if (newIndexToOldIndexMap[i] === 0) {
