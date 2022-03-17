@@ -220,7 +220,7 @@ const createRender = (options) => {
 				if (prevChild.key != null) {
 					newIndex = keyToNewIndexMap.get(prevChild.key)
 				} else {
-					for (let j = s2; j < e2; j++) {
+					for (let j = s2; j <= e2; j++) {
 						if (isSameVNodeType(prevChild, c2[j])) {
 							// 如果存在表示找到的原来的节点对应的映射，直接跳出
 							newIndex = j
