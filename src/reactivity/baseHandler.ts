@@ -43,13 +43,13 @@ const createGetter = (isReadOnly = false, shallow = false) => {
 }
 
 const createSetter = () => {
-	const get = (target, key, value) => {
+	const set = (target, key, value) => {
 		const res = Reflect.set(target, key, value)
 		// 触发依赖
 		trigger(target, key)
 		return res
 	}
-	return get
+	return set
 }
 
 get = createGetter()
