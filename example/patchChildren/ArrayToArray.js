@@ -214,7 +214,7 @@ import { ref, h } from '../../lib/guide-mini-vue.esm.js'
 //   h('p', { key: 'G' }, 'G')
 // ]
 
-// fix c 节点应该是 move 而不是删除之后重新创建的
+// fix c 节点应该是 move 而不是删除之后重新创建的.
 const prevChildren = [
   h('p', { key: 'A' }, 'A'),
   h('p', { id: 'prev-c' }, 'C'),
