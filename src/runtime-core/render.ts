@@ -161,7 +161,6 @@ const createRender = (options) => {
 			// 相等的时候 每次移动指针 i
 			i++
 		}
-		console.log('i', i)
 
 		// ------> 右侧对比
 		while (i <= e1 && i <= e2) {
