@@ -14,6 +14,7 @@ const createComponentInstance = (vnode, parent) => {
 		props: {},
 		emit: {},
 		slots: {},
+		next: null,
 		setupState: {},
 		parent,
 		// parent,

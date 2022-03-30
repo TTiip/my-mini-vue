@@ -4,7 +4,7 @@ import { EMPTY_OBJ, getSequence } from '../shared'
 import { createComponentInstance, setupComponent } from './component'
 import { createAppAPI } from './createApp'
 import { Fragment, Text  } from './vnode'
-import { insert } from '../runtime-dom'
+import { shouldUpdateComponent } from './componentUpdateUtils'
 
 // custom render
 const createRender = (options) => {
@@ -18,11 +18,27 @@ const createRender = (options) => {
 
 	// Component
 	const processComponent = (n1, n2, container, parentComponent, anchor) => {
-		mountComponent(n2, container, parentComponent, anchor)
+		if (!n1) {
+			mountComponent(n2, container, parentComponent, anchor)
+		} else {
+			updateComponent(n1, n2)
+		}
+	}
+
+	const updateComponent = (n1, n2) => {
+		const instance = n2.component = n1.component
+		// 如果 props 完全相同 则不需要更新
+		if (shouldUpdateComponent(n1, n2)) {
+			instance.next = n2
+			instance.update()
+		} else {
+      n2.el = n1.el
+      n2.vnode = n2
+    }
 	}
 
 	const mountComponent = (initinalVNode, container, parentComponent, anchor) => {
-		const instance = createComponentInstance(initinalVNode, parentComponent)
+		const instance = initinalVNode.component = createComponentInstance(initinalVNode, parentComponent)
 
 		setupComponent(instance)
 		setupRenderEffect(instance, initinalVNode, container, anchor)
@@ -345,7 +361,7 @@ const createRender = (options) => {
 
 	const setupRenderEffect = (instance, initinalVNode, container, anchor) => {
 		// 利用 effect 做依赖收集
-		effect(() => {
+		instance.update = effect(() => {
 			if (!instance.insMounted) {
 				const { proxy } = instance
 				const subTree = instance.subTree = instance.render.call(proxy)
@@ -357,6 +373,20 @@ const createRender = (options) => {
 				initinalVNode.el = subTree.el
 				instance.insMounted = true
 			} else {
+				// 这里 在更新的时候还需要更新组件的 props
+				// 需要 更新完成以后的 vnode
+
+				// vnode: 更新之前的 虚拟节点
+				// next: 下次要更新的 虚拟节点
+				const { next, vnode } = instance
+
+				if (next) {
+					// 更新 el
+					next.el = vnode.el
+
+					updateComponentPreRender(instance, next)
+				}
+
 				const { proxy } = instance
 				const prevSubTree = instance.subTree
 				const subTree = instance.subTree = instance.render.call(proxy)
@@ -374,6 +404,12 @@ const createRender = (options) => {
 	return {
 		createApp: createAppAPI(render)
 	}
+}
+
+const updateComponentPreRender = (instance, nextVNode) => {
+	instance.vnode = nextVNode
+	instance.next = null
+	instance.props = nextVNode.props
 }
 
 export {
