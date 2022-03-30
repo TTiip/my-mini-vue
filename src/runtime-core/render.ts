@@ -5,6 +5,7 @@ import { createComponentInstance, setupComponent } from './component'
 import { createAppAPI } from './createApp'
 import { Fragment, Text  } from './vnode'
 import { shouldUpdateComponent } from './componentUpdateUtils'
+import { queueJobs } from './scheduler'
 
 // custom render
 const createRender = (options) => {
@@ -397,6 +398,12 @@ const createRender = (options) => {
 
 				initinalVNode.el = subTree.el
 				instance.insMounted = true
+			}
+		}, {
+			// 优化 不需要每次更新数据都去执行 effect 收集的依赖。
+			scheduler: () => {
+				// 建立一个 微任务去 等待数据完成在执行回调。
+				queueJobs(instance.update)
 			}
 		})
 	}
