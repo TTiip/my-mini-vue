@@ -13,32 +13,52 @@ const enum TagType {
 
 const baseParse = (content: string) => {
 	const context = createparserContent(content)
-	return createRoot(parserChildren(context))
+	// 初始化的时候 标签数组 传递一个 []
+	return createRoot(parserChildren(context, []))
 }
 
-const parserChildren = (context: { source: string }) => {
+const parserChildren = (context: { source: string }, ancestors) => {
 	const nodes: any = []
-	let node
-	const source = context.source
+	// 循环解析 字符串。
+	while (!isEnd(context, ancestors)) {
+		let node
+		const source = context.source
 
-	// 字符串是以 {{ 开头的才需要处理
-	if (source.startsWith(interpolationOpenDelimiter)) {
-		// 插值
-		node = parseInterpolation(context)
-	} else if (source.startsWith(ElementCloseDelimiter)) { // source[0] === '<'
-		// element
-		if (/[a-z]/i.test(source[1])) {
-			node = parserElement(context)
+		// 字符串是以 {{ 开头的才需要处理
+		if (source.startsWith(interpolationOpenDelimiter)) {
+			// 插值
+			node = parseInterpolation(context)
+		} else if (source.startsWith(ElementCloseDelimiter)) { // source[0] === '<'
+			// element
+			if (/[a-z]/i.test(source[1])) {
+				node = parserElement(context, ancestors)
+			}
+		}
+
+		// 如果前面的的两个判断都没有命中，表示是文本。
+		if (!node) {
+			node = parseText(context)
+		}
+		nodes.push(node)
+	}
+
+	return nodes
+}
+
+const isEnd = (context, ancestors) => {
+	// 1.当遇到结束标签的时候
+	const source = context.source
+	if (source.startsWith('</')) {
+		for (let i = ancestors.length - 1; i >= 0; i--) {
+			const tag = ancestors[i].tag
+			if (startWithEndTagOpen(source, tag)) {
+				return true
+			}
 		}
 	}
 
-	// 如果前面的的两个判断都没有命中，表示是文本。
-	if (!node) {
-		node = parseText(context)
-	}
-	nodes.push(node)
-
-	return nodes
+	// 2.context.source 有值的时候
+	return !context.source
 }
 
 const createRoot = (children) => {
@@ -52,6 +72,7 @@ const createparserContent = (content: string) => {
 		source: content
 	}
 }
+
 const advanceBy = (context, length) => {
 	context.source = context.source.slice(length)
 }
@@ -88,13 +109,33 @@ const parseInterpolation = (context) => {
 }
 
 // element
-const parserElement = (context) => {
-	// 这里需要调用两次！！！切记
-	const element = parserTag(context, TagType.Start)
-	// ！！！
-	parserTag(context, TagType.End)
+// 在调用 parserElement 的时候，使用栈的 先进后出特性，把 element push进去
+// 之后在完成解析以后取出，比较标签有没有闭合。
+const parserElement = (context, ancestors) => {
+	// 这里需要调用两次！！！切记 开始标签匹配一次
+	const element: any = parserTag(context, TagType.Start)
+
+	ancestors.push(element)
+
+	element.children = parserChildren(context, ancestors)
+
+	ancestors.pop()
+	// 这里需要判断标签是不是匹配，如果匹配才能销毁，或者删掉。
+
+	console.log(element.tag, '111')
+	console.log(context.source, '222')
+	if (startWithEndTagOpen(context.source, element.tag)) {
+		// 结束标签匹配一次！！！
+		parserTag(context, TagType.End)
+	} else {
+		throw new Error(`缺少结束标签: ${element.tag}`)
+	}
 
 	return element
+}
+
+const startWithEndTagOpen = (source, tag) => {
+	return source.startsWith('</') && source.slice(2, 2 + tag.length).toLowerCase() === tag.toLowerCase()
 }
 
 const parserTag = (context, type: TagType) => {
@@ -121,8 +162,19 @@ const parserTag = (context, type: TagType) => {
 
 // text 文本类型
 const parseText = (context) => {
+	let endTokens = ['{{', '<']
+	let endIndex = context.source.length
+	// 遇到 {{ 或者 < 都应该直接停下，返回了
+	for (let i = 0; i < endTokens.length; i++) {
+		const index = context.source.indexOf(endTokens[i])
+		// 当 字符串中 存在 {{ 表示是文本和 插值混合的。
+		if (index !== -1 && endIndex > index) {
+			endIndex = index
+		}
+	}
+
 	// 1. 获取content
-  const content = parseTextData(context, context.source.length)
+  const content = parseTextData(context, endIndex)
 
   return {
     type: NodeTypes.TEXT,
@@ -133,6 +185,7 @@ const parseText = (context) => {
 const parseTextData = (context: any, length) => {
   const content = context.source.slice(0, length)
 
+	console.log(content, '-----------------')
   // 2. 推进
   advanceBy(context, length)
 
