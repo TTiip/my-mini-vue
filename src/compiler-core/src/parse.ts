@@ -71,7 +71,7 @@ const parseInterpolation = (context) => {
 	const rawContent = parseTextData(context, rawContentLength)
 	const content = rawContent.trim()
 
-	advanceBy(context, rawContentLength + interpolationCloseDelimiter.length)
+	advanceBy(context, interpolationCloseDelimiter.length)
 
 	//
 	// TODO 思考 上面的逻辑 可以使用 slice(2, -2) 来直接获取吗？
@@ -122,7 +122,7 @@ const parserTag = (context, type: TagType) => {
 // text 文本类型
 const parseText = (context) => {
 	// 1. 获取content
-  const content = parseTextData(context, context.source.length);
+  const content = parseTextData(context, context.source.length)
 
   return {
     type: NodeTypes.TEXT,
@@ -135,6 +135,7 @@ const parseTextData = (context: any, length) => {
 
   // 2. 推进
   advanceBy(context, length)
+
   return content
 }
 
