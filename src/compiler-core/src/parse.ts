@@ -32,9 +32,9 @@ const parserChildren = (context: { source: string }) => {
 		}
 	}
 
-	// 如果前面的的两个判断都没有命中
+	// 如果前面的的两个判断都没有命中，表示是文本。
 	if (!node) {
-
+		node = parseText(context)
 	}
 	nodes.push(node)
 
@@ -103,7 +103,6 @@ const parserTag = (context, type: TagType) => {
 	// 匹配以 < 开头或者以 </ 开头的 字符，/ 可以没有。
 	const match: any = /^<\/?([a-z]*)/i.exec(context.source)
 	const tag = match[1]
-	console.log(match, 'match')
 
 	// 2.删除处理完成的代码
 	advanceBy(context, match[0].length)
@@ -117,6 +116,25 @@ const parserTag = (context, type: TagType) => {
 		type: NodeTypes.ELEMENT,
 		tag
 	}
+}
+
+// text 文本类型
+const parseText = (context) => {
+	// 1. 获取content
+  const content = parseTextData(context, context.source.length);
+
+  return {
+    type: NodeTypes.TEXT,
+    content
+  }
+}
+
+const parseTextData = (context: any, length) => {
+  const content = context.source.slice(0, length)
+
+  // 2. 推进
+  advanceBy(context, length)
+  return content
 }
 
 export {
