@@ -67,7 +67,8 @@ const parseInterpolation = (context) => {
 
 	const rawContentLength = closeIndex - interpolationOpenDelimiter.length
 	// 可能存在空格 trim去掉~
-	const rawContent = context.source.slice(0, rawContentLength)
+	// const rawContent = context.source.slice(0, rawContentLength)
+	const rawContent = parseTextData(context, rawContentLength)
 	const content = rawContent.trim()
 
 	advanceBy(context, rawContentLength + interpolationCloseDelimiter.length)
