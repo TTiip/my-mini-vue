@@ -4,6 +4,11 @@ import { NodeTypes } from './ast'
 const openDelimiter = '{{'
 const closeDelimiter = '}}'
 
+const enum TagType {
+	Start,
+	End
+}
+
 const baseParse = (content: string) => {
 	const context = createparserContent(content)
 	return createRoot(parserChildren(context))
@@ -12,10 +17,17 @@ const baseParse = (content: string) => {
 const parserChildren = (context: { source: string }) => {
 	const nodes: any = []
 	let node
+	const source = context.source
 
 	// 字符串是以 {{ 开头的才需要处理
-	if (context.source.startsWith(openDelimiter)) {
+	if (source.startsWith(openDelimiter)) {
+		// 插值
 		node = parseInterpolation(context)
+	} else if (source.startsWith('<')) { // source[0] === '<'
+		// element
+		if (/[a-z]/i.test(source[1])) {
+			node = parserElement(context)
+		}
 	}
 	nodes.push(node)
 
@@ -37,6 +49,7 @@ const advanceBy = (context, length) => {
 	context.source = context.source.slice(length)
 }
 
+// 插值
 const parseInterpolation = (context) => {
 	// {{ message }} ---> 拿到这个 message
 
@@ -57,15 +70,46 @@ const parseInterpolation = (context) => {
 	// context.source = context.source.slice(2, -2)
 	// const content = context.source.slice(openDelimiter.length, -closeDelimiter.length).trim()
 
-	console.log(content, 'content')
-	console.log(context.source, 'context.source')
-
 	return {
 		type: NodeTypes.INTERPOLATION,
 		content: {
 			type: NodeTypes.SIMPLE_EXPRESSION,
-			content: content
+			content
 		}
+	}
+}
+
+// element
+const parserElement = (context) => {
+	// 这里需要调用两次！！！切记
+	const element = parserTag(context, TagType.Start)
+	// ！！！
+	parserTag(context, TagType.End)
+
+	console.log(context.source, '222222222222')
+	return element
+}
+
+const parserTag = (context, type: TagType) => {
+	// 1.解析 tag
+	// <div />
+	// <div></div>
+	// 匹配以 < 开头或者以 </ 开头的 字符，/ 可以没有。
+	const match: any = /^<\/?([a-z]*)/i.exec(context.source)
+	const tag = match[1]
+	console.log(match, 'match')
+
+	// 2.删除处理完成的代码
+	advanceBy(context, match[0].length)
+	advanceBy(context, 1)
+	if (type === TagType.End) {
+		// 如果是结束标签直接 后面不用返回 后面的东西了。
+		return
+	}
+
+	return {
+		type: NodeTypes.ELEMENT,
+		tag
 	}
 }
 
