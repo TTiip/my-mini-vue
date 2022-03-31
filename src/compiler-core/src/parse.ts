@@ -102,7 +102,7 @@ const parserTag = (context, type: TagType) => {
 	advanceBy(context, match[0].length)
 	advanceBy(context, 1)
 	if (type === TagType.End) {
-		// 如果是结束标签直接 后面不用返回 后面的东西了。
+		// 如果是结束标签 (</div>) 直接不用返回 后面的东西了。
 		return
 	}
 
