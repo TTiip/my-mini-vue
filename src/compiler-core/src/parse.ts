@@ -86,7 +86,6 @@ const parserElement = (context) => {
 	// ！！！
 	parserTag(context, TagType.End)
 
-	console.log(context.source, '222222222222')
 	return element
 }
 
