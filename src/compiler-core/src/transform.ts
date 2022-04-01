@@ -1,10 +1,13 @@
-const transform = (root, options) => {
+const transform = (root, options = {}) => {
 
 	const context = createTransformContext(root, options)
 
-	// 1. 遍历 -> 深度优先搜索
 	traverseNode(root, context)
-	// 2.修改 text content
+	createRootCodegen(root)
+}
+
+const createRootCodegen = (root: any) => {
+  root.codegenNode = root.children[0]
 }
 
 const traverseNode = (node, context) => {
