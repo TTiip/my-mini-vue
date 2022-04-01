@@ -121,9 +121,6 @@ const parserElement = (context, ancestors) => {
 
 	ancestors.pop()
 	// 这里需要判断标签是不是匹配，如果匹配才能销毁，或者删掉。
-
-	console.log(element.tag, '111')
-	console.log(context.source, '222')
 	if (startWithEndTagOpen(context.source, element.tag)) {
 		// 结束标签匹配一次！！！
 		parserTag(context, TagType.End)
@@ -185,7 +182,6 @@ const parseText = (context) => {
 const parseTextData = (context: any, length) => {
   const content = context.source.slice(0, length)
 
-	console.log(content, '-----------------')
   // 2. 推进
   advanceBy(context, length)
 
