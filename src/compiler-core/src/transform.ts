@@ -12,14 +12,25 @@ const transform = (root, options = {}) => {
 }
 
 const createRootCodegen = (root: any) => {
-  root.codegenNode = root.children[0]
+	const child = root.children[0]
+
+	if (child.type === NodeTypes.ELEMENT) {
+		root.codegenNode = child.codegenNode
+	} else {
+		root.codegenNode = root.children[0]
+	}
 }
 
 const traverseNode = (node, context) => {
 	const nodeTransforms = context.nodeTransforms
+	const exitFns: any = []
+
 	for (let i = 0; i < nodeTransforms.length; i++) {
-		const fn = nodeTransforms[i]
-		fn(node)
+		const transform = nodeTransforms[i]
+		const onExit = transform(node, context)
+		if (onExit) {
+			exitFns.push(onExit)
+		}
 	}
 	// 这里需要 分情况处理不同类型的逻辑
 	switch (node.type) {
@@ -29,13 +40,17 @@ const traverseNode = (node, context) => {
 			break
 		// root 根结点
 		case NodeTypes.ROOT:
-		// 元素类型 <div><p>  xx  </p></div> 这种
 		case NodeTypes.ELEMENT:
 			// 处理 children
 			traverseChildren(node, context)
 			break
 		default:
 			break
+	}
+
+	let i = exitFns.length
+	while (i--) {
+		exitFns[i]()
 	}
 }
 

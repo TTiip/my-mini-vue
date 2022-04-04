@@ -9,6 +9,10 @@ const isObject = (value) => {
 	return value !== null && typeof value === 'object'
 }
 
+const isString = (value) => {
+	return value !== null && typeof value === 'string'
+}
+
 const hasChanged = (val, newValue) => {
   return !Object.is(val, newValue)
 }
@@ -79,6 +83,7 @@ export {
 	extend,
 	EMPTY_OBJ,
 	isObject,
+	isString,
 	hasChanged,
 	getShapeFlag,
 	hasOwn,
