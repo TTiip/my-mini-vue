@@ -39,6 +39,10 @@ const createTextVNode = (text: string) => {
 }
 
 export {
+	createVNode as createElementVNode
+}
+
+export {
 	createVNode,
 	createTextVNode,
 	Fragment,

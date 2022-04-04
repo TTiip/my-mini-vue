@@ -1,5 +1,15 @@
-// mini-vue 的导出出口
-
-export * from './runtime-core'
+// mini-vue 出口
 export * from './runtime-dom'
 export * from './reactivity'
+export * from './runtime-dom'
+import { baseCompile } from './compiler-core/src'
+import * as runtimeDom from './runtime-dom'
+import { registerRuntimeCompiler } from './runtime-dom'
+
+function compileToFunction(template) {
+  const { code } = baseCompile(template)
+  const render = new Function('vue', code)(runtimeDom)
+  return render
+}
+
+registerRuntimeCompiler(compileToFunction)

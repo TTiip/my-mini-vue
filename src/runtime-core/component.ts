@@ -76,11 +76,13 @@ const handleSetupResult = (instance, setupResult) => {
 const finishCompentSetup =(instance) => {
 	const Component = instance.type
 	const { render } = Component
+	if (compiler && !Component.render) {
+    if (Component.template) {
+      Component.render = compiler(Component.template);
+    }
+  }
 
-	// render 存在时赋值
-	if (render) {
-		instance.render = render
-	}
+	instance.render = Component.render
 }
 
 const getCurrentInstance = () => {
@@ -91,9 +93,16 @@ const setCurrentInstance = (instance) => {
   currentInstance = instance;
 }
 
+let compiler
+
+const registerRuntimeCompiler = (_compiler) => {
+  compiler = _compiler
+}
+
 export {
 	createComponentInstance,
 	setupComponent,
 	setupStatefulComponent,
-	getCurrentInstance
+	getCurrentInstance,
+	registerRuntimeCompiler
 }

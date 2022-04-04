@@ -48,6 +48,8 @@ const createApp = (...args: [any]) => {
 	return render.createApp(...args)
 }
 
+export * from '../runtime-core'
+
 export {
 	createElement,
 	patchProp,

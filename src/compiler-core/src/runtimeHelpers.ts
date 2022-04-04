@@ -3,7 +3,7 @@ const CREATE_ELEMENT_VNODE = Symbol('ctreateElementVNode')
 
 const helperMapName = {
   [TO_DISPLAY_STRING]: 'toDisplayString',
-  [CREATE_ELEMENT_VNODE]: 'ctreateElementVNode'
+  [CREATE_ELEMENT_VNODE]: 'createElementVNode'
 }
 
 export {

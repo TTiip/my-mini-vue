@@ -1,5 +1,7 @@
 import { ShapeFlags } from './ShapeFlags'
 
+export * from "./toDisplayString"
+
 const extend = Object.assign
 
 // 设置一个全局空对象方便后续曲比较

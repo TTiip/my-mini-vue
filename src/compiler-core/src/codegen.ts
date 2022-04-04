@@ -85,7 +85,7 @@ const genFunctionPreamble = (ast: any, context: any) => {
 	const aliasHelpers = (s: string) => `${helperMapName[s]}: _${helperMapName[s]}`
 
 	if (ast.helpers.length > 0) {
-		push(`const { ${ast.helpers.map(aliasHelpers).join(', ')} } = '${VueBinging}'`)
+		push(`const { ${ast.helpers.map(aliasHelpers).join(', ')} } = ${VueBinging}`)
 	}
 	push('\n')
 }
