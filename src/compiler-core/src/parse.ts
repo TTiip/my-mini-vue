@@ -63,7 +63,8 @@ const isEnd = (context, ancestors) => {
 
 const createRoot = (children) => {
 	return {
-		children
+		children,
+		type: NodeTypes.ROOT
 	}
 }
 
