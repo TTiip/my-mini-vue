@@ -1,6 +1,8 @@
 ## mini-vue
 
 实现最简 vue3 模型，用于深入学习 vue3
+<br />
+[这个是配套的笔记](https://github.com/TTiip/mini-vue-docs) 搭配起来食用更佳哟
 
 ## Why
 
