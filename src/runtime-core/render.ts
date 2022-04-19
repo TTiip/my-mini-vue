@@ -364,6 +364,9 @@ const createRender = (options) => {
 		instance.update = effect(() => {
 			if (!instance.insMounted) {
 				const { proxy } = instance
+				// 这里传递的 第一个 proxy 是组件实例this，第二个 proxy 是当做组件的参数，方便 render 函数中调用 ctx.xxx
+				// 这里是方便组件内部调用 获取 ctx 的操作
+				// 后续可能还有很多参数 (_cache, $props, $setup, $data, $options)
 				const subTree = instance.subTree = instance.render.call(proxy, proxy)
 
 				// vnode --> patch
@@ -389,6 +392,9 @@ const createRender = (options) => {
 
 				const { proxy } = instance
 				const prevSubTree = instance.subTree
+				// 这里传递的 第一个 proxy 是组件实例this，第二个 proxy 是当做组件的参数，方便 render 函数中调用 ctx.xxx
+				// 这里是方便组件内部调用 获取 ctx 的操作
+				// 后续可能还有很多参数 (_cache, $props, $setup, $data, $options)
 				const subTree = instance.subTree = instance.render.call(proxy, proxy)
 
 				// vnode --> patch
