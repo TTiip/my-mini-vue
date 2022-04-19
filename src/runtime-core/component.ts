@@ -75,7 +75,6 @@ const handleSetupResult = (instance, setupResult) => {
 
 const finishCompentSetup =(instance) => {
 	const Component = instance.type
-	const { render } = Component
 	if (compiler && !Component.render) {
     if (Component.template) {
       Component.render = compiler(Component.template);
