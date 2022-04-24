@@ -362,7 +362,7 @@ const createRender = (options) => {
 	const setupRenderEffect = (instance, initinalVNode, container, anchor) => {
 		// 利用 effect 做依赖收集
 		instance.update = effect(() => {
-			if (!instance.insMounted) {
+			if (!instance.isMounted) {
 				const { proxy } = instance
 				// 这里传递的 第一个 proxy 是组件实例this，第二个 proxy 是当做组件的参数，方便 render 函数中调用 ctx.xxx
 				// 这里是方便组件内部调用 获取 ctx 的操作
@@ -374,7 +374,7 @@ const createRender = (options) => {
 				patch(null, subTree, container, instance, anchor)
 
 				initinalVNode.el = subTree.el
-				instance.insMounted = true
+				instance.isMounted = true
 			} else {
 				// 这里 在更新的时候还需要更新组件的 props
 				// 需要 更新完成以后的 vnode
@@ -402,7 +402,7 @@ const createRender = (options) => {
 				patch(prevSubTree, subTree, container, instance, anchor)
 
 				initinalVNode.el = subTree.el
-				instance.insMounted = true
+				instance.isMounted = true
 			}
 		}, {
 			// 优化 不需要每次更新数据都去执行 effect 收集的依赖。
